@@ -140,7 +140,6 @@ func (c *Command) PrintHelp() {
 		colour.YellowStringLn(commandTitle)
 	}
 	if c.longdescription != "" {
-		fmt.Println()
 		fmt.Println(c.longdescription + "\n")
 	}
 	if len(c.subCommands) > 0 {
@@ -214,6 +213,13 @@ func (c *Command) BoolFlag(name, description string, variable *bool) *Command {
 // StringFlag - Adds a string flag to the command
 func (c *Command) StringFlag(name, description string, variable *string) *Command {
 	c.flags.StringVar(variable, name, *variable, description)
+	c.flagCount++
+	return c
+}
+
+// IntFlag - Adds an int flag to the command
+func (c *Command) IntFlag(name, description string, variable *int) *Command {
+	c.flags.IntVar(variable, name, *variable, description)
 	c.flagCount++
 	return c
 }
