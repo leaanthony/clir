@@ -1,6 +1,6 @@
 # clir
 
-A Simple and Clear CLI library.
+A Simple and Clear CLI library. Dependency free.
 
 ### Example
 
@@ -27,3 +27,11 @@ func main() {
 
 }
 ```
+
+### Features
+
+  * Nested Subcommands
+  * Auto-generated help
+  * Custom banners
+  * Uses the standard library `flag` package
+  * 
