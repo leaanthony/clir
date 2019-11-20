@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/leaanthony/clir/internal/colour"
 )
 
 // Command represents a command that may be run by the user
@@ -137,13 +135,13 @@ func (c *Command) PrintHelp() {
 	}
 	// Ignore root command
 	if c.commandPath != c.name {
-		colour.YellowStringLn(commandTitle)
+		fmt.Println(commandTitle)
 	}
 	if c.longdescription != "" {
 		fmt.Println(c.longdescription + "\n")
 	}
 	if len(c.subCommands) > 0 {
-		colour.WhiteStringLn("Available commands:")
+		fmt.Println("Available commands:")
 		fmt.Println("")
 		for _, subcommand := range c.subCommands {
 			if subcommand.isHidden() {
@@ -159,7 +157,7 @@ func (c *Command) PrintHelp() {
 		fmt.Println("")
 	}
 	if c.flagCount > 0 {
-		colour.WhiteStringLn("Flags:")
+		fmt.Println("Flags:")
 		fmt.Println()
 		c.flags.SetOutput(os.Stdout)
 		c.flags.PrintDefaults()
