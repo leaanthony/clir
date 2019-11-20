@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	"github.com/leaanthony/clir/internal/colour"
 )
 
 // Cli - The main application object
@@ -14,11 +12,28 @@ type Cli struct {
 	rootCommand    *Command
 	defaultCommand *Command
 	preRunCommand  func(*Cli) error
+	bannerFunction func(*Cli) string
 }
 
 // Version - Get the Application version string
 func (c *Cli) Version() string {
 	return c.version
+}
+
+// Name - Get the Application Name
+func (c *Cli) Name() string {
+	return c.rootCommand.name
+}
+
+// ShortDescription - Get the Application short description
+func (c *Cli) ShortDescription() string {
+	return c.rootCommand.shortdescription
+}
+
+// SetBannerFunction is used to set the function that is called
+// to get the banner string.
+func (c *Cli) SetBannerFunction(fn func(*Cli) string) {
+	c.bannerFunction = fn
 }
 
 // Abort prints the given error and terminates the application
@@ -34,7 +49,8 @@ func (c *Cli) AddCommand(command *Command) {
 
 // PrintBanner prints the application banner!
 func (c *Cli) PrintBanner() {
-	fmt.Printf("%s %s - %s\n\n", colour.YellowString(c.rootCommand.name), colour.RedString(c.version), c.rootCommand.shortdescription)
+	fmt.Println(c.bannerFunction(c))
+	fmt.Println("")
 }
 
 // PrintHelp - Prints the application's help
