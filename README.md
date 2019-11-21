@@ -2,7 +2,7 @@
    <img src="clir_logo.png" width="40%"><br/>
 </p>
 <p align="center">
-   A simple and clear CLI library. Dependency free.<br/><br/>
+   A Simple and Clear CLI library. Dependency free.<br/><br/>
    <a href="https://github.com/leaanthony/clir/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
    <a href="https://goreportcard.com/report/github.com/leaanthony/clir"><img src="https://goreportcard.com/badge/github.com/leaanthony/clir"/></a>
    <a href="http://godoc.org/github.com/leaanthony/clir"><img src="https://img.shields.io/badge/godoc-reference-blue.svg"/></a>
