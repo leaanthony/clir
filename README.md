@@ -1,6 +1,28 @@
-# clir
+<p align="center" style="text-align: center">
+   <img src="clir_logo.png" width="40%"><br/>
+</p>
+<p align="center">
+   A simple and clear CLI library. Dependency free.<br/><br/>
+   <a href="https://github.com/leaanthony/clir/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+   <a href="https://goreportcard.com/report/github.com/leaanthony/clir"><img src="https://goreportcard.com/badge/github.com/leaanthony/clir"/></a>
+   <a href="http://godoc.org/github.com/leaanthony/clir"><img src="https://img.shields.io/badge/godoc-reference-blue.svg"/></a>
+   <a href="https://www.codefactor.io/repository/github/leaanthony/clir"><img src="https://www.codefactor.io/repository/github/leaanthony/clir/badge" alt="CodeFactor" /></a>
+   <a href="https://github.com/leaanthony/clir/issues"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" alt="CodeFactor" /></a>
+   <a href="https://app.fossa.io/projects/git%2Bgithub.com%leaanthony%2Fclir?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%leaanthony%2Fclir.svg?type=shield"/></a>
+   <a href="https://houndci.com"><img src="https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg"/></a>
 
-A Simple and Clear CLI library. Dependency free.
+</p>
+
+
+### Features
+
+  * Nested Subcommands
+  * Uses the standard library `flag` package
+  * Auto-generated help
+  * Custom banners
+  * Hidden Subcommands
+  * Default Subcommand
+  * Dependency free
 
 ### Example
 
@@ -8,30 +30,46 @@ A Simple and Clear CLI library. Dependency free.
 package main
 
 import (
+	"fmt"
+
 	"github.com/leaanthony/clir"
 )
 
 func main() {
 
 	// Create new cli
-	cli := clir.NewCli("Basic", "A basic example", "v0.0.1")
+	cli := clir.NewCli("Flags", "A simple example", "v0.0.1")
 
-	// Define action
+	// Name
+	var name string
+	cli.StringFlag("name", "Your name", &name)
+	
+	// Define action for the command
 	cli.Action(func() error {
-		println("Hello World!")
+
+		if name == "" {
+			name = "Anonymous"
+		}
+		fmt.Printf("Hello %s!\n", name)
+
 		return nil
 	})
 
-	// Run!
 	cli.Run()
 
 }
 ```
 
-### Features
+#### Generated Help
 
-  * Nested Subcommands
-  * Auto-generated help
-  * Custom banners
-  * Uses the standard library `flag` package
-  * 
+```
+$ flags --help
+Flags v0.0.1 - A simple example
+
+Flags:
+
+  -help
+        Get help on the 'flags' command.
+  -name string
+        Your name
+```
