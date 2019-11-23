@@ -44,7 +44,7 @@ func (c *Cli) Abort(err error) {
 
 // AddCommand - Adds a command to the application
 func (c *Cli) AddCommand(command *Command) {
-	c.rootCommand.addCommand(command)
+	c.rootCommand.AddCommand(command)
 }
 
 // PrintBanner prints the application banner!

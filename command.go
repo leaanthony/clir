@@ -185,12 +185,12 @@ func (c *Command) Hidden() {
 // NewSubCommand - Creates a new subcommand
 func (c *Command) NewSubCommand(name, description string) *Command {
 	result := NewCommand(name, description)
-	c.addCommand(result)
+	c.AddCommand(result)
 	return result
 }
 
-// addCommand - Adds a subcommand
-func (c *Command) addCommand(command *Command) {
+// AddCommand - Adds a subcommand
+func (c *Command) AddCommand(command *Command) {
 	command.setApp(c.app)
 	command.setParentCommandPath(c.commandPath)
 	name := command.name
