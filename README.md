@@ -73,3 +73,7 @@ Flags:
   -name string
         Your name
 ```
+
+#### Documentation
+
+The main documentation may be found [here](https://clir.leaanthony.com).
