@@ -26,7 +26,7 @@
 
 ### Example
 
-```
+```go
 package main
 
 import (
@@ -62,7 +62,7 @@ func main() {
 
 #### Generated Help
 
-```
+```shell
 $ flags --help
 Flags v0.0.1 - A simple example
 
