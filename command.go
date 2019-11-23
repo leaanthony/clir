@@ -63,10 +63,10 @@ func (c *Command) parseFlags(args []string) error {
 	os.Stderr = nil
 	err := c.flags.Parse(args)
 	os.Stderr = tmp
-	if err != nil {
-		fmt.Printf("Error: %s\n\n", err.Error())
-		c.PrintHelp()
-	}
+	// if err != nil {
+	// 	fmt.Printf("Error: %s\n\n", err.Error())
+	// 	c.PrintHelp()
+	// }
 	return err
 }
 
