@@ -41,17 +41,12 @@ func main() {
 	cli := clir.NewCli("Flags", "A simple example", "v0.0.1")
 
 	// Name
-	var name string
+	name := "Anonymous"
 	cli.StringFlag("name", "Your name", &name)
 	
 	// Define action for the command
 	cli.Action(func() error {
-
-		if name == "" {
-			name = "Anonymous"
-		}
 		fmt.Printf("Hello %s!\n", name)
-
 		return nil
 	})
 
