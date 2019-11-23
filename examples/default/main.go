@@ -16,12 +16,15 @@ func main() {
 		return nil
 	})
 
-	// Create a test subcommand that's hidden
+	// Create a test subcommand
 	test := cli.NewSubCommand("test", "Test the app")
 	test.Action(func() error {
 		println("I am testing!")
 		return nil
 	})
+
+	// Set default command to run
+	cli.DefaultCommand(init)
 
 	// Run!
 	cli.Run()
