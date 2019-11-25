@@ -10,6 +10,7 @@
    <a href="https://github.com/leaanthony/clir/issues"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" alt="CodeFactor" /></a>
    <a href="https://app.fossa.com/projects/git%2Bgithub.com%2Fleaanthony%2Fclir?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2Fleaanthony%2Fclir.svg?type=shield"/></a>
    <a href="https://houndci.com"><img src="https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg"/></a>
+	<a ><img src="https://github.com/bh90210/clir/workflows/build/badge.svg"/></a>
 
 </p>
 
