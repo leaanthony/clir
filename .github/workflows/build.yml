@@ -1,0 +1,77 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build & run examples
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    steps:
+
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: Check out code
+      uses: actions/checkout@master
+
+    - name: Build basic
+      run: go build -v ./examples/basic
+
+    - name: Run basic
+      run: ./basic
+
+    - name: Build chained
+      run: go build -v ./examples/chained
+
+    - name: Run chained
+      run: ./chained -name World -age 30 -awesome true
+
+    - name: Build custom-banner
+      run: go build -v ./examples/custom-banner
+
+    - name: Run custom-banner
+      run: ./custom-banner -help
+
+    - name: Build flags
+      run: go build -v ./examples/flags
+
+    - name: Run flags
+      run: ./flags -name World -age 30 -awesome true
+
+    - name: Build flags-compact
+      run: go build -v ./examples/flags-compact
+
+    - name: Run flags-compact
+      run: ./flags-compact -name World -age 30 -awesome true
+
+    - name: Build nested-subcommands
+      run: go build -v ./examples/nested-subcommands
+
+    - name: Run nested-subcommands top
+      run: ./nested-subcommands top
+
+    - name: Run nested-subcommands middle
+      run: ./nested-subcommands top middle
+
+    - name: Run nested-subcommands bottom
+      run: ./nested-subcommands top middle bottom
+
+    - name: Build subcommands
+      run: go build -v ./examples/subcommands
+
+    - name: Run subcommands init
+      run: ./subcommands init
+
+    - name: Run subcommands test
+      run: ./subcommands test
