@@ -11,7 +11,7 @@
    <a href="https://app.fossa.com/projects/git%2Bgithub.com%2Fleaanthony%2Fclir?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2Fleaanthony%2Fclir.svg?type=shield"/></a>
    <a href="https://houndci.com"><img src="https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg"/></a>
    <a href='https://github.com/jpoles1/gopherbadger' target='_blank'><img src="https://img.shields.io/badge/Go%20Coverage-98%25-brightgreen.svg?longCache=true&style=flat"></a>
-	<a ><img src="https://github.com/bh90210/clir/workflows/build/badge.svg?branch=master"/></a>
+	<a ><img src="https://github.com/leaanthony/clir/workflows/build/badge.svg?branch=master"/></a>
 
 </p>
 
