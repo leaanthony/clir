@@ -5,6 +5,8 @@
    A Simple and Clear CLI library. Dependency free.<br/><br/>
    <a href="https://github.com/leaanthony/clir/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
    <a href="https://goreportcard.com/report/github.com/leaanthony/clir"><img src="https://goreportcard.com/badge/github.com/leaanthony/clir"/></a>
+   <a href="https://github.com/avelino/awesome-go" rel="nofollow"><img src="https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg" alt="Awesome"></a>
+   <a href="https://dev.azure.com/leaanthony/Wails/_build/latest?definitionId=1&branchName=master" rel="nofollow"><img 
    <a href="http://godoc.org/github.com/leaanthony/clir"><img src="https://img.shields.io/badge/godoc-reference-blue.svg"/></a>
    <a href="https://www.codefactor.io/repository/github/leaanthony/clir"><img src="https://www.codefactor.io/repository/github/leaanthony/clir/badge" alt="CodeFactor" /></a>
    <a href="https://github.com/leaanthony/clir/issues"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" alt="CodeFactor" /></a>
