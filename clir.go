@@ -6,7 +6,11 @@ import (
 )
 
 func defaultBannerFunction(c *Cli) string {
-	return fmt.Sprintf("%s %s - %s", c.Name(), c.Version(), c.ShortDescription())
+	version := ""
+	if len(c.Version()) > 0 {
+		version = " " + c.Version()
+	}
+	return fmt.Sprintf("%s%s - %s", c.Name(), version, c.ShortDescription())
 }
 
 // NewCli - Creates a new Cli application object
