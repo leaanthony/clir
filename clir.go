@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+// defaultBannerFunction prints a banner for the application.
+// If version is a blank string, it is ignored.
 func defaultBannerFunction(c *Cli) string {
 	version := ""
 	if len(c.Version()) > 0 {
