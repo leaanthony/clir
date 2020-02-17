@@ -45,14 +45,16 @@ func main() {
 	// Name
 	name := "Anonymous"
 	cli.StringFlag("name", "Your name", &name)
-	
+
 	// Define action for the command
 	cli.Action(func() error {
 		fmt.Printf("Hello %s!\n", name)
 		return nil
 	})
 
-	cli.Run()
+	if err := cli.Run(); err != nil {
+		fmt.Printf("Error encountered : %v\n")
+	}
 
 }
 ```
