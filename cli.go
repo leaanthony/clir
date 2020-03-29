@@ -108,8 +108,8 @@ func (c *Cli) IntFlag(name, description string, variable *int) *Cli {
 }
 
 // Action - Define an action from this command
-func (c *Cli) Action(callback Action) *Cli {
-	c.rootCommand.Action(callback)
+func (c *Cli) Action(callback interface{}, args ...interface{}) *Cli {
+	c.rootCommand.Action(callback, args)
 	return c
 }
 

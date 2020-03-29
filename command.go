@@ -16,7 +16,7 @@ type Command struct {
 	subCommands       []*Command
 	subCommandsMap    map[string]*Command
 	longestSubcommand int
-	actionCallback    Action
+	actionCallback    *Action
 	app               *Cli
 	flags             *flag.FlagSet
 	flagCount         int
@@ -94,7 +94,7 @@ func (c *Command) run(args []string) error {
 
 	// Do we have an action?
 	if c.actionCallback != nil {
-		return c.actionCallback()
+		return c.actionCallback.run()
 	}
 
 	// If we haven't specified a subcommand
@@ -116,8 +116,9 @@ func (c *Command) run(args []string) error {
 }
 
 // Action - Define an action from this command
-func (c *Command) Action(callback Action) *Command {
-	c.actionCallback = callback
+func (c *Command) Action(callback interface{}, args []interface{}) *Command {
+	action := Action{callback: callback, args: args}
+	c.actionCallback = &action
 	return c
 }
 
