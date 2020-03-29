@@ -45,7 +45,6 @@ func (a *Action) run() error {
 	res := v.Call(vargs)
 	if v := res[0].Interface(); v != nil {
 		return v.(error)
-		return err
 	} 
 	return nil
 }
