@@ -21,7 +21,6 @@ func (a *Action) run() error {
 		return errors.New("not a function")
 	}
 
-
 	// detect cases where arguments provided is different
 	// 		from the number requested
 	// prevents reflect package from generating panic

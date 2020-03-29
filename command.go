@@ -116,7 +116,7 @@ func (c *Command) run(args []string) error {
 }
 
 // Action - Define an action from this command
-func (c *Command) Action(callback interface{}, args []interface{}) *Command {
+func (c *Command) Action(callback interface{}, args ...interface{}) *Command {
 	action := Action{callback: callback, args: args}
 	c.actionCallback = &action
 	return c
