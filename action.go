@@ -9,20 +9,23 @@ import (
 
 // Action represents a function that gets calls when the command is called by
 // the user
-type Action struct {
+type Action func() error
+
+// CustomAction represents a function with arguments that gets calls when the 
+// command is called by the user
+type CustomAction struct {
 	callback 	interface{}
 	args		[]interface{}
 }
 
-func (a *Action) run() error {
+func (a *CustomAction) run() error {
 	// Check whether the callback is a function
 	v := reflect.ValueOf(a.callback)
 	if v.Kind() != reflect.Func {
 		return errors.New("not a function")
 	}
 
-	// detect cases where arguments provided is different
-	// 		from the number requested
+	// detect cases where arguments provided is different from number requested, 
 	// prevents reflect package from generating panic
 	diff := reflect.TypeOf(a.callback).NumIn() - len(a.args)
 	funcName := runtime.FuncForPC(v.Pointer()).Name()

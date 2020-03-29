@@ -108,10 +108,17 @@ func (c *Cli) IntFlag(name, description string, variable *int) *Cli {
 }
 
 // Action - Define an action from this command
-func (c *Cli) Action(callback interface{}, args ...interface{}) *Cli {
-	c.rootCommand.Action(callback, args...)
+func (c *Cli) Action(callback Action) *Cli {
+	c.rootCommand.Action(callback)
 	return c
 }
+
+// CustomAction - Define a custom action from this command
+func (c *Cli) CustomAction(callback interface{}, args ...interface{}) *Cli {
+	c.rootCommand.CustomAction(callback, args...)
+	return c
+}
+
 
 // LongDescription - Sets the long description for the command
 func (c *Cli) LongDescription(longdescription string) *Cli {

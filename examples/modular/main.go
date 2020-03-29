@@ -30,7 +30,7 @@ func main() {
 	cli.StringFlag("name", "Your name", &name)
 
 	// Define action
-	cli.Action(printMessage, &name)
+	cli.CustomAction(printMessage, &name)
 
 	// Run!
 	if err := cli.Run(); err != nil {

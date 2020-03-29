@@ -9,19 +9,20 @@ import (
 
 // Command represents a command that may be run by the user
 type Command struct {
-	name              string
-	commandPath       string
-	shortdescription  string
-	longdescription   string
-	subCommands       []*Command
-	subCommandsMap    map[string]*Command
-	longestSubcommand int
-	actionCallback    *Action
-	app               *Cli
-	flags             *flag.FlagSet
-	flagCount         int
-	helpFlag          bool
-	hidden            bool
+	name                   string
+	commandPath            string
+	shortdescription       string
+	longdescription        string
+	subCommands            []*Command
+	subCommandsMap         map[string]*Command
+	longestSubcommand      int
+	actionCallback         Action
+	customActionCallback   *CustomAction
+	app                    *Cli
+	flags                  *flag.FlagSet
+	flagCount              int
+	helpFlag               bool
+	hidden                 bool
 }
 
 // NewCommand creates a new Command
@@ -68,7 +69,6 @@ func (c *Command) parseFlags(args []string) error {
 
 // Run - Runs the Command with the given arguments
 func (c *Command) run(args []string) error {
-
 	// If we have arguments, process them
 	if len(args) > 0 {
 		// Check for subcommand
@@ -93,8 +93,11 @@ func (c *Command) run(args []string) error {
 	}
 
 	// Do we have an action?
-	if c.actionCallback != nil {
-		return c.actionCallback.run()
+	if c.actionCallback != nil  && c.customActionCallback == nil {
+		return c.actionCallback()
+	}
+	if c.actionCallback == nil && c.customActionCallback != nil {
+		return c.customActionCallback.run()
 	}
 
 	// If we haven't specified a subcommand
@@ -116,9 +119,17 @@ func (c *Command) run(args []string) error {
 }
 
 // Action - Define an action from this command
-func (c *Command) Action(callback interface{}, args ...interface{}) *Command {
-	action := Action{callback: callback, args: args}
-	c.actionCallback = &action
+func (c *Command) Action(callback Action) *Command {
+	c.customActionCallback = nil
+	c.actionCallback = callback
+	return c
+}
+
+// CustomAction - Define a custom action from this command
+func (c *Command) CustomAction(callback interface{}, args ...interface{}) *Command {
+	c.actionCallback = nil
+	customAction := CustomAction{callback: callback, args: args}
+	c.customActionCallback = &customAction
 	return c
 }
 
