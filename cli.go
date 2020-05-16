@@ -119,7 +119,7 @@ func (c *Cli) LongDescription(longdescription string) *Cli {
 	return c
 }
 
-// OtherArgs - Returns the non-flag arguments passed to the cli
+// OtherArgs - Returns the non-flag arguments passed to the cli. NOTE: This should only be called within the context of an action.
 func (c *Cli) OtherArgs() []string {
 	return c.rootCommand.flags.Args()
 }
