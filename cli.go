@@ -118,3 +118,8 @@ func (c *Cli) LongDescription(longdescription string) *Cli {
 	c.rootCommand.LongDescription(longdescription)
 	return c
 }
+
+// OtherArgs - Returns the non-flag arguments passed to the cli
+func (c *Cli) OtherArgs() []string {
+	return c.rootCommand.flags.Args()
+}
