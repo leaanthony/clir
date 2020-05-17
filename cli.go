@@ -113,9 +113,24 @@ func (c *Cli) Action(callback Action) *Cli {
 	return c
 }
 
+// FlagShortCut  creates a shortcut or shorter call to a flags (i.e. "-readfiles" or "-rf")
+func (c *Cli) FlagShortCut(flagLongName string, flagShortCut string) *Cli {
+	var newFlagDetails flagDetails
+	newFlagDetails.flagName = flagLongName
+	newFlagDetails.shortCut = flagShortCut
+	c.rootCommand.flagList = append(c.rootCommand.flagList, newFlagDetails)
+	return c
+}
+
+// CommandShortCut creates a shortcut or shorter call to a command (i.e. "readfiles" or "rf")
+func (c *Cli) CommandShortCut(shortcut string) *Cli {
+	c.rootCommand.shortCut = shortcut
+	return c
+}
+
 // LongDescription - Sets the long description for the command
 func (c *Cli) LongDescription(longdescription string) *Cli {
-	c.rootCommand.LongDescription(longdescription)
+	c.rootCommand.longdescription = longdescription
 	return c
 }
 

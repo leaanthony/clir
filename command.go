@@ -12,6 +12,7 @@ type Command struct {
 	name              string
 	commandPath       string
 	shortdescription  string
+	shortCut          string
 	longdescription   string
 	subCommands       []*Command
 	subCommandsMap    map[string]*Command
@@ -19,9 +20,15 @@ type Command struct {
 	actionCallback    Action
 	app               *Cli
 	flags             *flag.FlagSet
+	flagList          []flagDetails
 	flagCount         int
 	helpFlag          bool
 	hidden            bool
+}
+
+type flagDetails struct {
+	flagName string
+	shortCut string
 }
 
 // NewCommand creates a new Command
@@ -68,13 +75,28 @@ func (c *Command) parseFlags(args []string) error {
 
 // Run - Runs the Command with the given arguments
 func (c *Command) run(args []string) error {
-
 	// If we have arguments, process them
 	if len(args) > 0 {
+		// Convert command shortCut to full command name
+		for _, command := range c.subCommands {
+			if args[0] == command.shortCut {
+				args[0] = command.name
+			}
+		}
 		// Check for subcommand
 		subcommand := c.subCommandsMap[args[0]]
 		if subcommand != nil {
 			return subcommand.run(args[1:])
+		}
+		// Convert flag shortCut to full flag
+		for _, arg := range args {
+			if arg[0] == '-' {
+				for _, flagDetails := range c.flagList {
+					if flagDetails.shortCut == arg[1:] {
+						args[0] = "-" + flagDetails.flagName
+					}
+				}
+			}
 		}
 
 		// Parse flags
@@ -136,6 +158,9 @@ func (c *Command) PrintHelp() {
 	if c.longdescription != "" {
 		fmt.Println(c.longdescription + "\n")
 	}
+	if c.shortCut != "" {
+		fmt.Println(c.shortCut + "\n")
+	}
 	if len(c.subCommands) > 0 {
 		fmt.Println("Available commands:")
 		fmt.Println("")
@@ -148,7 +173,7 @@ func (c *Command) PrintHelp() {
 			if subcommand.isDefaultCommand() {
 				isDefault = "[default]"
 			}
-			fmt.Printf("   %s%s%s %s\n", subcommand.name, spacer, subcommand.shortdescription, isDefault)
+			fmt.Printf("   %s%s%s%s%s %s\n", subcommand.name, spacer, subcommand.shortCut, spacer, subcommand.shortdescription, isDefault)
 		}
 		fmt.Println("")
 	}
@@ -215,6 +240,22 @@ func (c *Command) StringFlag(name, description string, variable *string) *Comman
 func (c *Command) IntFlag(name, description string, variable *int) *Command {
 	c.flags.IntVar(variable, name, *variable, description)
 	c.flagCount++
+	return c
+}
+
+// FlagShortCut  creates a shortcut or shorter call to a flags (i.e. "-readfiles" or "-rf")
+func (c *Command) FlagShortCut(flagLongName string, flagShortCut string) *Command {
+	for _, singleFlag := range c.flagList {
+		if singleFlag.flagName == flagLongName {
+			singleFlag.shortCut = flagShortCut
+		}
+	}
+	return c
+}
+
+// CommandShortCut creates a shortcut or shorter call to a command (i.e. "readfiles" or "rf")
+func (c *Command) CommandShortCut(cmdShortCut string) *Command {
+	c.shortCut = cmdShortCut
 	return c
 }
 
