@@ -22,6 +22,7 @@ type Command struct {
 	flagCount         int
 	helpFlag          bool
 	hidden            bool
+	required          bool //the command/subcommand is required
 }
 
 // NewCommand creates a new Command
@@ -178,6 +179,11 @@ func (c *Command) Hidden() {
 	c.hidden = true
 }
 
+// Required makes the command a required element
+func (c *Command) Required() {
+	c.required = true
+}
+
 // NewSubCommand - Creates a new subcommand
 func (c *Command) NewSubCommand(name, description string) *Command {
 	result := NewCommand(name, description)
@@ -222,4 +228,9 @@ func (c *Command) IntFlag(name, description string, variable *int) *Command {
 func (c *Command) LongDescription(longdescription string) *Command {
 	c.longdescription = longdescription
 	return c
+}
+
+// OtherArgs - Returns the non-flag arguments passed to the subcommand. NOTE: This should only be called within the context of an action.
+func (c *Command) OtherArgs() []string {
+	return c.flags.Args()
 }
