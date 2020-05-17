@@ -9,10 +9,10 @@ import (
 func main() {
 
 	// Create new cli
-	cli := clir.NewCli("Other Args", "A basic example", "v0.0.1")
+	cli := clir.NewCli("Shortcuts", "A basic example", "v0.0.1")
 
 	// Set long description
-	cli.LongDescription("This app shows positional arguments")
+	cli.LongDescription("This app shows creating shortcuts for commands and flags")
 
 	// Name
 	var name string
@@ -22,7 +22,6 @@ func main() {
 	// Define action
 	cli.Action(func() error {
 		println("Your name is", name)
-		fmt.Printf("The remaining arguments were: %+v\n", cli.OtherArgs())
 		return nil
 	})
 	// Using a subcommand instead of a flag
@@ -30,7 +29,7 @@ func main() {
 	// CommandShortCut is used to set a shortcut for a command. Create a shortcut for "namecommand" that will be "nc"
 	nameCommand.CommandShortCut("nc")
 	nameCommand.Action(func() error {
-		fmt.Printf("The remaining arguments were: %+v\n", nameCommand.OtherArgs())
+		fmt.Println("The `namecommand` command was run!")
 		return nil
 	})
 
