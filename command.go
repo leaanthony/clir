@@ -223,3 +223,8 @@ func (c *Command) LongDescription(longdescription string) *Command {
 	c.longdescription = longdescription
 	return c
 }
+
+// OtherArgs - Returns the non-flag arguments passed to the subcommand. NOTE: This should only be called within the context of an action.
+func (c *Command) OtherArgs() []string {
+	return c.flags.Args()
+}
