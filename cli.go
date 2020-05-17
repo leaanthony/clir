@@ -113,11 +113,18 @@ func (c *Cli) Action(callback Action) *Cli {
 	return c
 }
 
-// FlagShortCut  creates a shortcut or shorter call to a flags (i.e. "-readfiles" or "-rf")
+// FlagShortCut - Creates a shortcut or shorter call to a flags (i.e. "-readfiles" or "-rf")
 func (c *Cli) FlagShortCut(flagLongName string, flagShortCut string) *Cli {
+	// Check if we already have a flagdetails assigned to this flag
+	for index, flag := range c.rootCommand.flagList {
+		if flagLongName == flag.flagName {
+			c.rootCommand.flagList[index].shortCut = "-" + flagShortCut
+			return c
+		}
+	}
 	var newFlagDetails flagDetails
 	newFlagDetails.flagName = flagLongName
-	newFlagDetails.shortCut = flagShortCut
+	newFlagDetails.shortCut = "-" + flagShortCut
 	c.rootCommand.flagList = append(c.rootCommand.flagList, newFlagDetails)
 	return c
 }

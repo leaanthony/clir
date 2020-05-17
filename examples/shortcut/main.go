@@ -34,7 +34,8 @@ func main() {
 	})
 	var newName string
 	newNameFlag := nameCommand.StringFlag("newname", "New Name", &newName)
-	newNameFlag.FlagShortCut("newname", "nn")
+	//newNameFlag.FlagShortCut("newname", "nn")
+	//newNameFlag.FlagRequired("newname")
 	newNameFlag.Action(func() error {
 		fmt.Println("The flag `newname` was parsed!")
 		return nil
