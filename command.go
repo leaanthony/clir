@@ -246,11 +246,10 @@ func (c *Command) IntFlag(name, description string, variable *int) *Command {
 
 // FlagShortCut  creates a shortcut or shorter call to a flags (i.e. "-readfiles" or "-rf")
 func (c *Command) FlagShortCut(flagLongName string, flagShortCut string) *Command {
-	for _, singleFlag := range c.flagList {
-		if singleFlag.flagName == flagLongName {
-			singleFlag.shortCut = flagShortCut
-		}
-	}
+	var newFlagDetails flagDetails
+	newFlagDetails.flagName = flagLongName
+	newFlagDetails.shortCut = flagShortCut
+	c.flagList = append(c.flagList, newFlagDetails)
 	return c
 }
 

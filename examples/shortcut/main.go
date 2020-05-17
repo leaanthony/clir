@@ -32,6 +32,13 @@ func main() {
 		fmt.Println("The `namecommand` command was run!")
 		return nil
 	})
+	var newName string
+	newNameFlag := nameCommand.StringFlag("newname", "New Name", &newName)
+	newNameFlag.FlagShortCut("newname", "nn")
+	newNameFlag.Action(func() error {
+		fmt.Println("The flag `newname` was parsed!")
+		return nil
+	})
 
 	// Run!
 	cli.Run()
