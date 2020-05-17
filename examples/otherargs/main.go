@@ -12,7 +12,7 @@ func main() {
 	cli := clir.NewCli("Other Args", "A basic example", "v0.0.1")
 
 	// Set long description
-	cli.LongDescription("This app shows positional arguments")
+	cli.LongDescription("This app shows additional arguments passed to your commands")
 
 	// Name
 	var name string
