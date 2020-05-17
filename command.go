@@ -184,9 +184,21 @@ func (c *Command) PrintHelp() {
 		c.flags.SetOutput(os.Stdout)
 		c.flags.PrintDefaults()
 		c.flags.SetOutput(os.Stderr)
+		fmt.Println()
 
+		// If flags have shortcuts assigned print out the shortcuts
+		for _, flagDetails := range c.flagList {
+			if flagDetails.shortCut != "" {
+				fmt.Println("Flag Shortcuts:")
+				fmt.Println()
+				for _, flag := range c.flagList {
+					spacer := strings.Repeat(" ", 5)
+					fmt.Printf(" %s%s%s \n", "-"+flag.flagName, spacer, "-"+flag.shortCut)
+				}
+				fmt.Println()
+			}
+		}
 	}
-	fmt.Println()
 }
 
 // isDefaultCommand returns true if called on the default command
