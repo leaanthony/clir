@@ -22,7 +22,6 @@ type Command struct {
 	flagCount         int
 	helpFlag          bool
 	hidden            bool
-	required          bool //the command/subcommand is required
 }
 
 // NewCommand creates a new Command
@@ -177,11 +176,6 @@ func (c *Command) isHidden() bool {
 // Hidden hides the command from the Help system
 func (c *Command) Hidden() {
 	c.hidden = true
-}
-
-// Required makes the command a required element
-func (c *Command) Required() {
-	c.required = true
 }
 
 // NewSubCommand - Creates a new subcommand
