@@ -75,6 +75,7 @@ func (c *Command) parseFlags(args []string) error {
 
 // Run - Runs the Command with the given arguments
 func (c *Command) run(args []string) error {
+
 	// If we have arguments, process them
 	if len(args) > 0 {
 		// Convert command shortCut to full command name
