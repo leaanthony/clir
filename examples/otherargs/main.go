@@ -24,6 +24,12 @@ func main() {
 		fmt.Printf("The remaining arguments were: %+v\n", cli.OtherArgs())
 		return nil
 	})
+	// Using a subcommand instead of a flag
+	nameCommand := cli.NewSubCommand("namecommand", "Shows your name!")
+	nameCommand.Action(func() error {
+		fmt.Printf("The remaining arguments were: %+v\n", nameCommand.OtherArgs())
+		return nil
+	})
 
 	// Run!
 	cli.Run()
