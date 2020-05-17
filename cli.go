@@ -130,7 +130,7 @@ func (c *Cli) CommandShortCut(shortcut string) *Cli {
 
 // LongDescription - Sets the long description for the command
 func (c *Cli) LongDescription(longdescription string) *Cli {
-	c.rootCommand.longdescription = longdescription
+	c.rootCommand.LongDescription(longdescription)
 	return c
 }
 
