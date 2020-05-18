@@ -135,13 +135,6 @@ func (c *Command) run(args []string) error {
 
 	// If we have arguments, process them
 	if len(args) > 0 {
-
-		//Check for subcommand
-		subcommand := c.subCommandsMap[args[0]]
-		if subcommand != nil {
-			return subcommand.run(args[1:])
-		}
-
 		// Ranging over the args to convert shortcuts to full name
 		for index, arg := range args {
 			//Convert subcommand shortCut to full command name
@@ -158,6 +151,12 @@ func (c *Command) run(args []string) error {
 					}
 				}
 			}
+		}
+
+		//Check for subcommand
+		subcommand := c.subCommandsMap[args[0]]
+		if subcommand != nil {
+			return subcommand.run(args[1:])
 		}
 
 		// Checking required flags/commands vs supplied args
@@ -251,7 +250,7 @@ func (c *Command) PrintHelp() {
 		c.flags.SetOutput(os.Stderr)
 		fmt.Println()
 
-		// If flags have shortcuts assigned (or is required) print out the shortcuts
+		// If flags have shortcuts assigned (or is required) print out the help info
 		for _, flagDetails := range c.flagList {
 			if flagDetails.shortCut != "" || flagDetails.required == true {
 				fmt.Println("Flag Details:")
