@@ -6,9 +6,20 @@ import (
 	"github.com/leaanthony/clir"
 )
 
+// Required flag errors are parsed before and other errors
+
 // Example commands to run to test functionality
 // go run main.go add file.txt // Shows error since required flag '-force' is required
 // go run main.go add all //  Shows error since the add command requires '-force' before the subcommand is evaluated
+// go run main.go add all -force // Shows error since the flag is on the 'all' subcommand, which does not have a '-force' flag
+// go run main.go add file.txt -force // Shows success since the required flag can be in any position in the args
+// go run main.go add -wildcard *.txt // Shows error since the required flag '-force' is not supplied
+// go run main.go add -force -wildcard *.txt // Shows success
+
+// Uncomment the 'add' command required line to run these tests
+// go run main.go add // Shows error since the 'all' command is required
+// go run main.go add all // Shows error since the '-force' flag is still required on the 'add' command
+// go run main.go add -force all // Shows success since the -force flag is ONLY required if the 'add' command is the final command, but 'all' is the final command
 
 func main() {
 

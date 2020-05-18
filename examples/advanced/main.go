@@ -8,17 +8,21 @@ import (
 )
 
 // Example commands to run to test functionality
-// go run main.go add all test // Shows error and exiting on excess input
-// go run main.go add all  // Shows success for adding all files
+// go run main.go add all test // Shows error and exiting on excess input (this is USER DEFINED, not set by the library, by default excess is ignored)
+// go run main.go add all  // Shows success for adding all files, and shows that the '-force' flag is required for the 'add' command only, not the 'all' command.
+// go run main.go add -f -name namedFile file1.txt all // Shows that the 'all' subcommand is ignored.  Subcommands MUST be the next argument, they cannot be after flags
+// go run main.go add -f -name namedFile file1.txt // Shows success using a string flag to supply text input
+// go run main.go add -name -f namedFile file1.txt // Shows WRONG success since we supplied the name in the wrong position, the library does not handle validation.
+// go run main.go add -name namedfile -f file1.txt // Shows success and that the flag order doesn't matter
 // go run main.go add file.txt // Shows error when trying to run without a required flag
 // go run main.go add -force file.txt // Show success when adding 'file.txt'.
 // go run main.go add -f file.txt // Show success when adding 'file.txt' with shortcut for force
-// go run main.go add -f -w *.txt // Show success when adding a wildcard (validation isn't currently done but could be added)
+// go run main.go add -f -w *.txt // Show success when adding a wildcard (validation isn't currently done but could be added by user (not handled by library))
 // go run main.go add -w *.txt // Show error again that the force flag is ALWAYS required
 // go run main.go add file.txt -f // Show error that the flags MUST come before arguments
 // go run main.go add -Force file.txt // Show error that case is sensitive
 
-//Uncomment the 'secondforced' flag and required statement to test multiple forced flags
+// Uncomment the 'secondforced' flag lines to test multiple forced flags
 // go run main.go add -f -secondforced file.txt  // Show success when supplying both forced flags
 // go run main.go add -f file.txt // Show error when not supplying the second required forced flag
 
@@ -33,22 +37,26 @@ func main() {
 	// Setup our first subcommand "add"
 	nameCommand := cli.NewSubCommand("add", "add a file/files")
 
-	// Adding two flags, one is required and the other has shortcut
-	var wildcard bool
-	var forced bool
-
 	// Adding a "wildcard" command, and giving it a shortcut
+	var wildcard bool
 	wildcardFlag := nameCommand.BoolFlag("wildcard", "will treat as wildcard", &wildcard)
 	wildcardFlag.FlagShortCut("wildcard", "w")
 
-	// Adding a "force", giving it a shortcut and making it required
+	// Adding a "force" flag, giving it a shortcut and making it required
+	var forced bool
 	forcedFlag := nameCommand.BoolFlag("force", "will force add", &forced)
 	forcedFlag.FlagShortCut("force", "f")
 	forcedFlag.FlagRequired("force")
 
-	var secondforce bool
-	secondforceFlag := nameCommand.BoolFlag("secondforced", "a second forced flag", &secondforce)
-	secondforceFlag.FlagRequired("secondforced")
+	// Adding another optional string flag "name"
+	var namedFile string
+	nameFlag := nameCommand.StringFlag("name", "add a second name to the added file", &namedFile)
+	nameFlag.FlagShortCut("name", "n")
+
+	// Uncomment these lines to add a second forced flag
+	// var secondforce bool
+	// secondforceFlag := nameCommand.BoolFlag("secondforced", "a second forced flag", &secondforce)
+	// secondforceFlag.FlagRequired("secondforced")
 
 	// Adding an action that will evaluate any of the supplied arguments and flags to the "add" command
 	nameCommand.Action(func() error {
@@ -67,7 +75,11 @@ func main() {
 		if wildcard {
 			fmt.Println("Treating as wildcard: ", nameCommand.OtherArgs()[0])
 		} else {
-			fmt.Println("Adding File: ", nameCommand.OtherArgs()[0])
+			if namedFile != "" {
+				fmt.Println("Adding File: ", nameCommand.OtherArgs()[0], " With name: ", namedFile)
+			} else {
+				fmt.Println("Adding File: ", nameCommand.OtherArgs()[0])
+			}
 		}
 
 		// Returning nil since everything is done

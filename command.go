@@ -88,11 +88,14 @@ func checkRequired(args []string, c *Command) {
 
 	// Making sure the command has no required subcommand that was not supplied
 	commandResult := findRequired(args, requiredCommandList)
-	if commandResult != "" {
+	if len(commandResult) != 0 {
 		c.PrintHelp()
-		fmt.Printf("Error: Command '%s' is required, but not supplied \n", commandResult)
+		for _, command := range commandResult {
+			fmt.Printf("Error: Command '%s' is required, but not supplied \n", command)
+		}
 		os.Exit(0)
 	}
+
 	// Getting a list of all required flags
 	var requiredFlagList []string
 	for _, flagDetails := range c.flagList {
@@ -103,44 +106,55 @@ func checkRequired(args []string, c *Command) {
 
 	// Checking all our args to make sure it includes the required flags
 	flagResult := findRequired(args, requiredFlagList)
-	if flagResult != "" {
+	if len(flagResult) != 0 {
 		c.PrintHelp()
-		fmt.Printf("Error: Flag '%s' is required, but not supplied \n", flagResult)
+		for _, flag := range flagResult {
+			fmt.Printf("Error: Flag '%s' is required, but not supplied \n", flag)
+		}
 		os.Exit(0)
 	}
 }
 
 // comparing the supplied flags/commands (could be zero) to the required flags/commands
-func findRequired(supplied, required []string) string {
+func findRequired(supplied, required []string) []string {
+	var missing []string
 	rmap := make(map[string]bool, len(supplied))
 	for _, kr := range supplied {
 		rmap[kr] = true
 	}
 	for _, ks := range required {
 		if !rmap[ks] {
-			return ks // Return the missing key from supplied
+			missing = append(missing, ks) // Adding a missing key from required
 		}
 	}
-	return "" // All required keys have been found
+	return missing // All required keys have been found
 }
 
 // Run - Runs the Command with the given arguments
 func (c *Command) run(args []string) error {
+
 	// If we have arguments, process them
 	if len(args) > 0 {
-		// Convert command shortCut to full command name
-		for _, command := range c.subCommands {
-			if args[0] == command.shortCut {
-				args[0] = command.name
-			}
+
+		//Check for subcommand
+		subcommand := c.subCommandsMap[args[0]]
+		if subcommand != nil {
+			return subcommand.run(args[1:])
 		}
 
-		// Convert flag shortCut to full flag
-		for argIndex, arg := range args {
+		// Ranging over the args to convert shortcuts to full name
+		for index, arg := range args {
+			//Convert subcommand shortCut to full command name
+			for _, command := range c.subCommands {
+				if arg == command.shortCut {
+					args[index] = command.name
+				}
+			}
+			// Convert flag shortCut to full flag
 			if arg[0] == '-' {
 				for _, flagDetails := range c.flagList {
 					if flagDetails.shortCut == arg {
-						args[argIndex] = "-" + flagDetails.flagName
+						args[index] = "-" + flagDetails.flagName
 					}
 				}
 			}
@@ -148,12 +162,6 @@ func (c *Command) run(args []string) error {
 
 		// Checking required flags/commands vs supplied args
 		checkRequired(args, c)
-
-		// Check for subcommand
-		subcommand := c.subCommandsMap[args[0]]
-		if subcommand != nil {
-			return subcommand.run(args[1:])
-		}
 
 		// Parse flags
 		err := c.parseFlags(args)
