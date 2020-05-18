@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/leaanthony/clir"
+	"github.com/deranjer/clir"
 )
 
 // Example commands to run to test functionality
