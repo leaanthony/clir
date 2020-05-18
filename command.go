@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"text/tabwriter"
 )
 
 // Command represents a command that may be run by the user
@@ -75,53 +76,90 @@ func (c *Command) parseFlags(args []string) error {
 	return err
 }
 
+// checkRequired is called twice (with args and with 0 args) to verify that there aren't flags/commands missing that are required
+func checkRequired(args []string, c *Command) {
+	// Getting list of required commands
+	var requiredCommandList []string
+	for _, command := range c.subCommands {
+		if command.required {
+			requiredCommandList = append(requiredCommandList, command.name)
+		}
+	}
+
+	// Making sure the command has no required subcommand that was not supplied
+	commandResult := findRequired(args, requiredCommandList)
+	if commandResult != "" {
+		c.PrintHelp()
+		fmt.Printf("Error: Command '%s' is required, but not supplied \n", commandResult)
+		os.Exit(0)
+	}
+	// Getting a list of all required flags
+	var requiredFlagList []string
+	for _, flagDetails := range c.flagList {
+		if flagDetails.required {
+			requiredFlagList = append(requiredFlagList, "-"+flagDetails.flagName)
+		}
+	}
+
+	// Checking all our args to make sure it includes the required flags
+	flagResult := findRequired(args, requiredFlagList)
+	if flagResult != "" {
+		c.PrintHelp()
+		fmt.Printf("Error: Flag '%s' is required, but not supplied \n", flagResult)
+		os.Exit(0)
+	}
+}
+
+// comparing the supplied flags/commands (could be zero) to the required flags/commands
+func findRequired(supplied, required []string) string {
+	rmap := make(map[string]bool, len(supplied))
+	for _, kr := range supplied {
+		rmap[kr] = true
+	}
+	for _, ks := range required {
+		if !rmap[ks] {
+			return ks // Return the missing key from supplied
+		}
+	}
+	return "" // All required keys have been found
+}
+
 // Run - Runs the Command with the given arguments
 func (c *Command) run(args []string) error {
-
 	// If we have arguments, process them
 	if len(args) > 0 {
 		// Convert command shortCut to full command name
-		for index, arg := range args {
-			fmt.Println("Arg: ", index, " ", arg)
-		}
 		for _, command := range c.subCommands {
 			if args[0] == command.shortCut {
 				args[0] = command.name
 			}
 		}
-		// Check for subcommand
-		subcommand := c.subCommandsMap[args[0]]
-		if subcommand != nil {
-			return subcommand.run(args[1:])
-		}
-		// Convert flag shortCut to full flag and then checking to see if it is required
-		for _, arg := range args {
+
+		// Convert flag shortCut to full flag
+		for argIndex, arg := range args {
 			if arg[0] == '-' {
 				for _, flagDetails := range c.flagList {
 					if flagDetails.shortCut == arg {
-						args[0] = "-" + flagDetails.flagName
-						fmt.Println("Setting shortct", "-"+flagDetails.flagName)
-					}
-					fmt.Println("Checking following command for required flags: ", c.name)
-					if flagDetails.required {
-						fmt.Println("Flag is require!", flagDetails.flagName)
-						for _, arg := range args {
-							if flagDetails.flagName == arg[1:] {
-								continue
-							} else {
-								fmt.Printf("Error: %s is required, but not supplied!", flagDetails.flagName)
-							}
-						}
+						args[argIndex] = "-" + flagDetails.flagName
 					}
 				}
 			}
 		}
 
+		// Checking required flags/commands vs supplied args
+		checkRequired(args, c)
+
+		// Check for subcommand
+		subcommand := c.subCommandsMap[args[0]]
+		if subcommand != nil {
+			return subcommand.run(args[1:])
+		}
+
 		// Parse flags
 		err := c.parseFlags(args)
 		if err != nil {
-			fmt.Printf("Error: %s\n\n", err.Error())
 			c.PrintHelp()
+			fmt.Printf("Error: %s\n\n", err.Error())
 			return err
 		}
 
@@ -131,6 +169,9 @@ func (c *Command) run(args []string) error {
 			return nil
 		}
 	}
+
+	// If zero args supplied still need to check for required subcommand or flag that was not added
+	checkRequired(args, c)
 
 	// Do we have an action?
 	if c.actionCallback != nil {
@@ -151,7 +192,6 @@ func (c *Command) run(args []string) error {
 
 	// Nothing left we can do
 	c.PrintHelp()
-
 	return nil
 }
 
@@ -203,18 +243,21 @@ func (c *Command) PrintHelp() {
 		c.flags.SetOutput(os.Stderr)
 		fmt.Println()
 
-		// If flags have shortcuts assigned print out the shortcuts
+		// If flags have shortcuts assigned (or is required) print out the shortcuts
 		for _, flagDetails := range c.flagList {
 			if flagDetails.shortCut != "" || flagDetails.required == true {
 				fmt.Println("Flag Details:")
-				fmt.Println()
-				spacer := strings.Repeat(" ", 13)
-				fmt.Printf(" %s%s%s%s%s \n", "Name", spacer, "Shortcut", spacer, "Required")
-				fmt.Println()
+				w := tabwriter.NewWriter(os.Stdout, 8, 8, 2, '\t', 0)
+				fmt.Fprintf(w, "%s\t%s\t%s", "Name", "Shortcut", "Required")
 				for _, flag := range c.flagList {
-					fmt.Printf(" %s%s%s%s%t \n", "-"+flag.flagName, spacer, flag.shortCut, spacer, flag.required)
+					if flag.shortCut == "" {
+						flag.shortCut = "N/A"
+					}
+					fmt.Fprintf(w, "\n %s\t%s\t%t", "-"+flag.flagName, flag.shortCut, flag.required)
 				}
-				fmt.Println()
+				fmt.Fprintf(w, "\n\n")
+				w.Flush()
+				break
 			}
 		}
 	}
@@ -275,22 +318,6 @@ func (c *Command) IntFlag(name, description string, variable *int) *Command {
 	return c
 }
 
-// FlagShortCut - Creates a shortcut or shorter call to a flags (i.e. "-readfiles" or "-rf")
-func (c *Command) FlagShortCut(flagLongName string, flagShortCut string) *Command {
-	// Check if we already have a flagdetails assigned to this flag
-	for index, flag := range c.flagList {
-		if flagLongName == flag.flagName {
-			c.flagList[index].shortCut = "-" + flagShortCut
-			return c
-		}
-	}
-	var newFlagDetails flagDetails
-	newFlagDetails.flagName = flagLongName
-	newFlagDetails.shortCut = "-" + flagShortCut
-	c.flagList = append(c.flagList, newFlagDetails)
-	return c
-}
-
 // CommandShortCut - Creates a shortcut or shorter call to a command (i.e. "readfiles" or "rf")
 func (c *Command) CommandShortCut(cmdShortCut string) *Command {
 	c.shortCut = cmdShortCut
@@ -311,6 +338,22 @@ func (c *Command) OtherArgs() []string {
 // CommandRequired - Sets the command as required
 func (c *Command) CommandRequired() *Command {
 	c.required = true
+	return c
+}
+
+// FlagShortCut - Creates a shortcut or shorter call to a flags (i.e. "-readfiles" or "-rf")
+func (c *Command) FlagShortCut(flagLongName string, flagShortCut string) *Command {
+	// Check if we already have a flagdetails assigned to this flag
+	for index, flag := range c.flagList {
+		if flagLongName == flag.flagName {
+			c.flagList[index].shortCut = "-" + flagShortCut
+			return c
+		}
+	}
+	var newFlagDetails flagDetails
+	newFlagDetails.flagName = flagLongName
+	newFlagDetails.shortCut = "-" + flagShortCut
+	c.flagList = append(c.flagList, newFlagDetails)
 	return c
 }
 

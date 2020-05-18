@@ -30,6 +30,12 @@ func main() {
 		fmt.Printf("The remaining arguments were: %+v\n", nameCommand.OtherArgs())
 		return nil
 	})
+	var newName string
+	newNameFlag := nameCommand.StringFlag("newname", "New Name", &newName)
+	newNameFlag.Action(func() error {
+		fmt.Println("The flag `newname` was parsed!")
+		return nil
+	})
 
 	// Run!
 	cli.Run()

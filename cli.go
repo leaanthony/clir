@@ -113,6 +113,23 @@ func (c *Cli) Action(callback Action) *Cli {
 	return c
 }
 
+// CommandShortCut creates a shortcut or shorter call to a command (i.e. "readfiles" or "rf")
+func (c *Cli) CommandShortCut(shortcut string) *Cli {
+	c.rootCommand.shortCut = shortcut
+	return c
+}
+
+// LongDescription - Sets the long description for the command
+func (c *Cli) LongDescription(longdescription string) *Cli {
+	c.rootCommand.LongDescription(longdescription)
+	return c
+}
+
+// OtherArgs - Returns the non-flag arguments passed to the cli. NOTE: This should only be called within the context of an action.
+func (c *Cli) OtherArgs() []string {
+	return c.rootCommand.flags.Args()
+}
+
 // FlagShortCut - Creates a shortcut or shorter call to a flags (i.e. "-readfiles" or "-rf")
 func (c *Cli) FlagShortCut(flagLongName string, flagShortCut string) *Cli {
 	// Check if we already have a flagdetails assigned to this flag
@@ -129,19 +146,18 @@ func (c *Cli) FlagShortCut(flagLongName string, flagShortCut string) *Cli {
 	return c
 }
 
-// CommandShortCut creates a shortcut or shorter call to a command (i.e. "readfiles" or "rf")
-func (c *Cli) CommandShortCut(shortcut string) *Cli {
-	c.rootCommand.shortCut = shortcut
+// FlagRequired - Sets the supplied flag name as required (must be long flag name, not shortcut)
+func (c *Cli) FlagRequired(flagName string) *Cli {
+	// Check if we already have a flagdetails assigned to this flag
+	for index, flag := range c.rootCommand.flagList {
+		if flagName == flag.flagName {
+			c.rootCommand.flagList[index].required = true
+			return c
+		}
+	}
+	var newFlagDetails flagDetails
+	newFlagDetails.flagName = flagName
+	newFlagDetails.required = true
+	c.rootCommand.flagList = append(c.rootCommand.flagList, newFlagDetails)
 	return c
-}
-
-// LongDescription - Sets the long description for the command
-func (c *Cli) LongDescription(longdescription string) *Cli {
-	c.rootCommand.LongDescription(longdescription)
-	return c
-}
-
-// OtherArgs - Returns the non-flag arguments passed to the cli. NOTE: This should only be called within the context of an action.
-func (c *Cli) OtherArgs() []string {
-	return c.rootCommand.flags.Args()
 }
