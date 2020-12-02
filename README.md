@@ -54,7 +54,7 @@ func main() {
 	})
 
 	if err := cli.Run(); err != nil {
-		fmt.Printf("Error encountered : %v\n")
+		fmt.Printf("Error encountered: %v\n", err)
 	}
 
 }
