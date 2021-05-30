@@ -11,7 +11,7 @@ func customFlagError(cli *clir.Cli) string {
 
 Flags:
 
-  -help
+  --help
 	Get help on the 'flag' command.`
 }
 

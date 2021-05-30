@@ -60,15 +60,6 @@ func (c *Cli) PrintBanner() {
 	fmt.Println("")
 }
 
-func (c *Cli) customFlagError() *string {
-	var customErr string
-	if c.flagFunction == nil {
-		return nil
-	}
-	customErr = c.flagFunction(c)
-	return &customErr
-}
-
 // PrintHelp - Prints the application's help.
 func (c *Cli) PrintHelp() {
 	c.rootCommand.PrintHelp()
@@ -139,4 +130,13 @@ func (c *Cli) LongDescription(longdescription string) *Cli {
 // NOTE: This should only be called within the context of an action.
 func (c *Cli) OtherArgs() []string {
 	return c.rootCommand.flags.Args()
+}
+
+func (c *Cli) customFlagError() *string {
+	var customErr string
+	if c.flagFunction == nil {
+		return nil
+	}
+	customErr = c.flagFunction(c)
+	return &customErr
 }
