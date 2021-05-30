@@ -6,16 +6,17 @@ import (
 	"os"
 )
 
-// Cli - The main application object
+// Cli - The main application object.
 type Cli struct {
 	version        string
 	rootCommand    *Command
 	defaultCommand *Command
 	preRunCommand  func(*Cli) error
 	bannerFunction func(*Cli) string
+	flagFunction   func(*Cli) string
 }
 
-// Version - Get the Application version string
+// Version - Get the Application version string.
 func (c *Cli) Version() string {
 	return c.version
 }
@@ -25,50 +26,55 @@ func (c *Cli) Name() string {
 	return c.rootCommand.name
 }
 
-// ShortDescription - Get the Application short description
+// ShortDescription - Get the Application short description.
 func (c *Cli) ShortDescription() string {
 	return c.rootCommand.shortdescription
 }
 
-// SetBannerFunction is used to set the function that is called
+// SetBannerFunction - Set the function that is called
 // to get the banner string.
 func (c *Cli) SetBannerFunction(fn func(*Cli) string) {
 	c.bannerFunction = fn
 }
 
-// SetFlagFunction is used to set custom error message when undefined
+// SetFlagFunction - Set custom error message when undefined
 // flags are used by the user.
-// func (c *Cli) SetFlagFunction(fn func(*Cli) string) {
-// 	c.bannerFunction = fn
-// }
-
-func (c *Cli) SuppressHelp() {
-	c.rootCommand.suppressHelp = true
+func (c *Cli) SetFlagFunction(fn func(*Cli) string) {
+	c.flagFunction = fn
 }
 
-// Abort prints the given error and terminates the application
+// Abort - Prints the given error and terminates the application.
 func (c *Cli) Abort(err error) {
 	log.Fatal(err)
 	os.Exit(1)
 }
 
-// AddCommand - Adds a command to the application
+// AddCommand - Adds a command to the application.
 func (c *Cli) AddCommand(command *Command) {
 	c.rootCommand.AddCommand(command)
 }
 
-// PrintBanner prints the application banner!
+// PrintBanner - Prints the application banner!
 func (c *Cli) PrintBanner() {
 	fmt.Println(c.bannerFunction(c))
 	fmt.Println("")
 }
 
-// PrintHelp - Prints the application's help
+func (c *Cli) customFlagError() *string {
+	var customErr string
+	if c.flagFunction == nil {
+		return &customErr
+	}
+	customErr = c.flagFunction(c)
+	return &customErr
+}
+
+// PrintHelp - Prints the application's help.
 func (c *Cli) PrintHelp() {
 	c.rootCommand.PrintHelp()
 }
 
-// Run - Runs the application with the given arguments
+// Run - Runs the application with the given arguments.
 func (c *Cli) Run(args ...string) error {
 	if c.preRunCommand != nil {
 		err := c.preRunCommand(c)
@@ -83,53 +89,54 @@ func (c *Cli) Run(args ...string) error {
 }
 
 // DefaultCommand - Sets the given command as the command to run when
-// no other commands given
+// no other commands given.
 func (c *Cli) DefaultCommand(defaultCommand *Command) *Cli {
 	c.defaultCommand = defaultCommand
 	return c
 }
 
-// NewSubCommand - Creates a new SubCommand for the application
+// NewSubCommand - Creates a new SubCommand for the application.
 func (c *Cli) NewSubCommand(name, description string) *Command {
 	return c.rootCommand.NewSubCommand(name, description)
 }
 
-// PreRun - Calls the given function before running the specific command
+// PreRun - Calls the given function before running the specific command.
 func (c *Cli) PreRun(callback func(*Cli) error) {
 	c.preRunCommand = callback
 }
 
-// BoolFlag - Adds a boolean flag to the root command
+// BoolFlag - Adds a boolean flag to the root command.
 func (c *Cli) BoolFlag(name, description string, variable *bool) *Cli {
 	c.rootCommand.BoolFlag(name, description, variable)
 	return c
 }
 
-// StringFlag - Adds a string flag to the root command
+// StringFlag - Adds a string flag to the root command.
 func (c *Cli) StringFlag(name, description string, variable *string) *Cli {
 	c.rootCommand.StringFlag(name, description, variable)
 	return c
 }
 
-// IntFlag - Adds an int flag to the root command
+// IntFlag - Adds an int flag to the root command.
 func (c *Cli) IntFlag(name, description string, variable *int) *Cli {
 	c.rootCommand.IntFlag(name, description, variable)
 	return c
 }
 
-// Action - Define an action from this command
+// Action - Define an action from this command.
 func (c *Cli) Action(callback Action) *Cli {
 	c.rootCommand.Action(callback)
 	return c
 }
 
-// LongDescription - Sets the long description for the command
+// LongDescription - Sets the long description for the command.
 func (c *Cli) LongDescription(longdescription string) *Cli {
 	c.rootCommand.LongDescription(longdescription)
 	return c
 }
 
-// OtherArgs - Returns the non-flag arguments passed to the cli. NOTE: This should only be called within the context of an action.
+// OtherArgs - Returns the non-flag arguments passed to the cli.
+// NOTE: This should only be called within the context of an action.
 func (c *Cli) OtherArgs() []string {
 	return c.rootCommand.flags.Args()
 }
