@@ -63,7 +63,7 @@ func (c *Cli) PrintBanner() {
 func (c *Cli) customFlagError() *string {
 	var customErr string
 	if c.flagFunction == nil {
-		return &customErr
+		return nil
 	}
 	customErr = c.flagFunction(c)
 	return &customErr
