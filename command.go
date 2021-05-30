@@ -22,6 +22,7 @@ type Command struct {
 	flagCount         int
 	helpFlag          bool
 	hidden            bool
+	suppressHelp      bool
 }
 
 // NewCommand creates a new Command
@@ -80,8 +81,9 @@ func (c *Command) run(args []string) error {
 		// Parse flags
 		err := c.parseFlags(args)
 		if err != nil {
-			fmt.Printf("Error: %s\n\n", err.Error())
-			c.PrintHelp()
+			if !c.suppressHelp {
+				c.PrintHelp()
+			}
 			return err
 		}
 
