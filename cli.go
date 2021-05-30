@@ -36,6 +36,16 @@ func (c *Cli) SetBannerFunction(fn func(*Cli) string) {
 	c.bannerFunction = fn
 }
 
+// SetFlagFunction is used to set custom error message when undefined
+// flags are used by the user.
+// func (c *Cli) SetFlagFunction(fn func(*Cli) string) {
+// 	c.bannerFunction = fn
+// }
+
+func (c *Cli) SuppressHelp() {
+	c.rootCommand.suppressHelp = true
+}
+
 // Abort prints the given error and terminates the application
 func (c *Cli) Abort(err error) {
 	log.Fatal(err)
