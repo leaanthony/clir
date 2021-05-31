@@ -80,9 +80,8 @@ func (c *Command) run(args []string) error {
 		// Parse flags
 		err := c.parseFlags(args)
 		if err != nil {
-			customErr := c.app.customFlagError()
-			if customErr != nil {
-				return fmt.Errorf("%s\n%s", err, *customErr)
+			if c.app.errorHandler != nil {
+				return fmt.Errorf("%s\n%s", err, c.app.errorHandler())
 			}
 			return fmt.Errorf("%s\nSee '%s --help' for usage", err, c.app.Name())
 		}

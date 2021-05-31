@@ -13,7 +13,7 @@ type Cli struct {
 	defaultCommand *Command
 	preRunCommand  func(*Cli) error
 	bannerFunction func(*Cli) string
-	flagFunction   func(*Cli) string
+	errorHandler   func() string
 }
 
 // Version - Get the Application version string.
@@ -39,8 +39,8 @@ func (c *Cli) SetBannerFunction(fn func(*Cli) string) {
 
 // SetFlagFunction - Set custom error message when undefined
 // flags are used by the user.
-func (c *Cli) SetFlagFunction(fn func(*Cli) string) {
-	c.flagFunction = fn
+func (c *Cli) SetErrorFunction(fn func() string) {
+	c.errorHandler = fn
 }
 
 // Abort - Prints the given error and terminates the application.
@@ -130,13 +130,4 @@ func (c *Cli) LongDescription(longdescription string) *Cli {
 // NOTE: This should only be called within the context of an action.
 func (c *Cli) OtherArgs() []string {
 	return c.rootCommand.flags.Args()
-}
-
-func (c *Cli) customFlagError() *string {
-	var customErr string
-	if c.flagFunction == nil {
-		return nil
-	}
-	customErr = c.flagFunction(c)
-	return &customErr
 }

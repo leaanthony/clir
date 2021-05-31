@@ -6,7 +6,7 @@ import (
 	"github.com/leaanthony/clir"
 )
 
-func customFlagError(cli *clir.Cli) string {
+func customFlagError() string {
 	return `Flag v0.0.1 - A custom error example
 
 Flags:
@@ -20,11 +20,11 @@ func main() {
 	// Create new cli
 	cli := clir.NewCli("Flag", "A custom error example", "v0.0.1")
 
-	cli.SetFlagFunction(customFlagError)
+	cli.SetErrorFunction(customFlagError)
 
 	// Run!
 	if err := cli.Run(); err != nil {
-		fmt.Printf("Error: %s\n", err)
+		fmt.Println(err)
 	}
 
 }
