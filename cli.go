@@ -37,7 +37,7 @@ func (c *Cli) SetBannerFunction(fn func(*Cli) string) {
 	c.bannerFunction = fn
 }
 
-// SetFlagFunction - Set custom error message when undefined
+// SetErrorFunction - Set custom error message when undefined
 // flags are used by the user.
 func (c *Cli) SetErrorFunction(fn func() string) {
 	c.errorHandler = fn
