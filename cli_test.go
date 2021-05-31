@@ -13,7 +13,7 @@ func TestCli(t *testing.T) {
 	})
 
 	t.Run("Run SetFlagFunction()", func(t *testing.T) {
-		c.SetFlagFunction(func(*Cli) string { return "" })
+		c.SetErrorFunction(func(err error) error { return err })
 	})
 
 	// t.Run("Run Abort()", func(t *testing.T) {
