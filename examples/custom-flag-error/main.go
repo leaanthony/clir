@@ -6,13 +6,14 @@ import (
 	"github.com/leaanthony/clir"
 )
 
-func customFlagError() string {
-	return `Flag v0.0.1 - A custom error example
+func customFlagError(err error) error {
+	return fmt.Errorf(`%s 
+Flag v0.0.1 - A custom error example
 
 Flags:
 
   --help
-	Get help on the 'flag' command.`
+	Get help on the 'flag' command`, err)
 }
 
 func main() {
