@@ -13,7 +13,7 @@ type Cli struct {
 	defaultCommand *Command
 	preRunCommand  func(*Cli) error
 	bannerFunction func(*Cli) string
-	errorHandler   func() string
+	errorHandler   func(error) error
 }
 
 // Version - Get the Application version string.
@@ -39,7 +39,7 @@ func (c *Cli) SetBannerFunction(fn func(*Cli) string) {
 
 // SetErrorFunction - Set custom error message when undefined
 // flags are used by the user.
-func (c *Cli) SetErrorFunction(fn func() string) {
+func (c *Cli) SetErrorFunction(fn func(error) error) {
 	c.errorHandler = fn
 }
 
