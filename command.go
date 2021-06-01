@@ -85,7 +85,7 @@ func (c *Command) run(args []string) error {
 				ctx := context.Background()
 				return c.app.errorHandler(ctx, err)
 			}
-			return fmt.Errorf("%s\nSee '%s --help' for usage", err, c.app.Name())
+			return fmt.Errorf("Error: %s\nSee '%s --help' for usage", err, c.commandPath)
 		}
 
 		// Help takes precedence
