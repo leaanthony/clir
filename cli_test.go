@@ -1,6 +1,7 @@
 package clir
 
 import (
+	"context"
 	"errors"
 	"testing"
 )
@@ -13,7 +14,7 @@ func TestCli(t *testing.T) {
 	})
 
 	t.Run("Run SetFlagFunction()", func(t *testing.T) {
-		c.SetErrorFunction(func(err error) error { return err })
+		c.SetErrorFunction(func(ctx context.Context, err error) error { return err })
 	})
 
 	// t.Run("Run Abort()", func(t *testing.T) {

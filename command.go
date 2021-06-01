@@ -82,7 +82,7 @@ func (c *Command) run(args []string) error {
 		err := c.parseFlags(args)
 		if err != nil {
 			if c.app.errorHandler != nil {
-				ctx := context.Background()
+				ctx := context.WithValue(context.Background(), "path", c.commandPath)
 				return c.app.errorHandler(ctx, err)
 			}
 			return fmt.Errorf("Error: %s\nSee '%s --help' for usage", err, c.commandPath)
