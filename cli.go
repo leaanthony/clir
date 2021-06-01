@@ -1,6 +1,7 @@
 package clir
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -13,7 +14,7 @@ type Cli struct {
 	defaultCommand *Command
 	preRunCommand  func(*Cli) error
 	bannerFunction func(*Cli) string
-	errorHandler   func(error) error
+	errorHandler   func(context.Context, error) error
 }
 
 // Version - Get the Application version string.
@@ -39,7 +40,7 @@ func (c *Cli) SetBannerFunction(fn func(*Cli) string) {
 
 // SetErrorFunction - Set custom error message when undefined
 // flags are used by the user.
-func (c *Cli) SetErrorFunction(fn func(error) error) {
+func (c *Cli) SetErrorFunction(fn func(context.Context, error) error) {
 	c.errorHandler = fn
 }
 
