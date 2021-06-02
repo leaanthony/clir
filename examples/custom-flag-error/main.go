@@ -1,20 +1,19 @@
 package main
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/leaanthony/clir"
 )
 
-func customFlagError(ctx context.Context, err error) error {
+func customFlagError(cmdPath string, err error) error {
 	return fmt.Errorf(`%s 
 flag v0.0.1 - A custom error example
 
 Flags:
 
   --help
-	Get help on the '%s' command`, err, ctx.Value("path"))
+	Get help on the '%s' command`, err, cmdPath)
 }
 
 func main() {

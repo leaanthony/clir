@@ -1,7 +1,6 @@
 package clir
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -82,8 +81,7 @@ func (c *Command) run(args []string) error {
 		err := c.parseFlags(args)
 		if err != nil {
 			if c.app.errorHandler != nil {
-				ctx := context.WithValue(context.Background(), "path", c.commandPath)
-				return c.app.errorHandler(ctx, err)
+				return c.app.errorHandler(c.commandPath, err)
 			}
 			return fmt.Errorf("Error: %s\nSee '%s --help' for usage", err, c.commandPath)
 		}
