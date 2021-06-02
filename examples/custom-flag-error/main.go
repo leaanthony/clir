@@ -23,7 +23,7 @@ func main() {
 
 	cli.SetErrorFunction(customFlagError)
 
-	cli.NewSubCommand("test", "Testing whether subcommands return via context to err")
+	cli.NewSubCommand("test", "Testing whether subcommand path returns correctly via err callback")
 
 	// Run!
 	if err := cli.Run(); err != nil {
