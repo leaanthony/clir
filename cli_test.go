@@ -12,6 +12,10 @@ func TestCli(t *testing.T) {
 		c.SetBannerFunction(func(*Cli) string { return "" })
 	})
 
+	t.Run("Run SetFlagFunction()", func(t *testing.T) {
+		c.SetErrorFunction(func(cmdPath string, err error) error { return err })
+	})
+
 	// t.Run("Run Abort()", func(t *testing.T) {
 	// 	cl := NewCli("test", "description", "0")
 	// 	cl.Abort(errors.New("test error"))
