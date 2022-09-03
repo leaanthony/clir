@@ -92,6 +92,11 @@ func (c *Cli) NewSubCommand(name, description string) *Command {
 	return c.rootCommand.NewSubCommand(name, description)
 }
 
+// NewSubCommandInheritFlags - Creates a new SubCommand for the application, inherit flags from parent Command
+func (c *Cli) NewSubCommandInheritFlags(name, description string) *Command {
+	return c.rootCommand.NewSubCommandInheritFlags(name, description)
+}
+
 // PreRun - Calls the given function before running the specific command.
 func (c *Cli) PreRun(callback func(*Cli) error) {
 	c.preRunCommand = callback
