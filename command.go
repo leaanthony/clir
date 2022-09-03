@@ -52,6 +52,15 @@ func (c *Command) setParentCommandPath(parentCommandPath string) {
 
 }
 
+func (c *Command) inheritFlags(inheritFlags *flag.FlagSet) {
+	// inherit flags
+	inheritFlags.VisitAll(func(f *flag.Flag) {
+		if f.Name != "help" {
+			c.flags.Var(f.Value, f.Name, f.Usage)
+		}
+	})
+}
+
 func (c *Command) setApp(app *Cli) {
 	c.app = app
 }
@@ -196,6 +205,13 @@ func (c *Command) AddCommand(command *Command) {
 	if len(name) > c.longestSubcommand {
 		c.longestSubcommand = len(name)
 	}
+}
+
+// NewSubCommandInheritFlags - Creates a new subcommand, inherits flags from command
+func (c *Command) NewSubCommandInheritFlags(name, description string) *Command {
+	result := c.NewSubCommand(name, description)
+	result.inheritFlags(c.flags)
+	return result
 }
 
 // BoolFlag - Adds a boolean flag to the command

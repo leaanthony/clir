@@ -131,6 +131,15 @@ func TestCommand(t *testing.T) {
 
 	})
 
+	t.Run("Run NewSubCommandInheritFlags()", func(t *testing.T) {
+		c.NewSubCommandInheritFlags("name", "description")
+	})
+
+	t.Run("Run inheritFlags()", func(t *testing.T) {
+		s := c.NewSubCommandInheritFlags("name", "description")
+		s.inheritFlags(c.flags)
+	})
+
 	t.Run("Run AddCommand()", func(t *testing.T) {
 		c.AddCommand(c)
 	})
