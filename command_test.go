@@ -132,12 +132,24 @@ func TestCommand(t *testing.T) {
 	})
 
 	t.Run("Run NewSubCommandInheritFlags()", func(t *testing.T) {
-		c.NewSubCommandInheritFlags("name", "description")
+		inherit := false
+		c.BoolFlag("inherit", "test inherence", &inherit)
+		s := c.NewSubCommandInheritFlags("name", "description")
+		if s.flags.Lookup("inherit") == nil {
+			t.Error("flag inherence")
+			t.Fail()
+		}
 	})
 
 	t.Run("Run inheritFlags()", func(t *testing.T) {
-		s := c.NewSubCommandInheritFlags("name", "description")
+		inheritFlag := false
+		c.BoolFlag("inheritFlag", "test inherence", &inheritFlag)
+		s := c.NewSubCommand("name", "description")
 		s.inheritFlags(c.flags)
+		if s.flags.Lookup("inheritFlag") == nil {
+			t.Error("flag inherence")
+			t.Fail()
+		}
 	})
 
 	t.Run("Run AddCommand()", func(t *testing.T) {
