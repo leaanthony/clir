@@ -72,3 +72,36 @@ func TestCli(t *testing.T) {
 		c.LongDescription("long description")
 	})
 }
+
+type testStruct struct {
+	Mode string `name:"mode" description:"The mode of build"`
+}
+
+func TestCli_AddFlags(t *testing.T) {
+	c := NewCli("test", "description", "0")
+
+	ts := &testStruct{}
+	c.AddFlags(ts)
+
+	modeFlag := c.rootCommand.flags.Lookup("mode")
+	if modeFlag == nil {
+		t.Errorf("expected flag mode to be added")
+	}
+	if modeFlag.Name != "mode" {
+		t.Errorf("expected flag name to be added")
+	}
+	if modeFlag.Usage != "The mode of build" {
+		t.Errorf("expected flag description to be added")
+	}
+
+	c.Action(func() error {
+		if ts.Mode != "123" {
+			t.Errorf("expected flag value to be set")
+		}
+		return nil
+	})
+	e := c.Run("-mode", "123")
+	if e != nil {
+		t.Errorf("expected no error, got %v", e)
+	}
+}

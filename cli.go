@@ -47,7 +47,6 @@ func (c *Cli) SetErrorFunction(fn func(string, error) error) {
 // Abort - Prints the given error and terminates the application.
 func (c *Cli) Abort(err error) {
 	log.Fatal(err)
-	os.Exit(1)
 }
 
 // AddCommand - Adds a command to the application.
@@ -117,6 +116,11 @@ func (c *Cli) StringFlag(name, description string, variable *string) *Cli {
 // IntFlag - Adds an int flag to the root command.
 func (c *Cli) IntFlag(name, description string, variable *int) *Cli {
 	c.rootCommand.IntFlag(name, description, variable)
+	return c
+}
+
+func (c *Cli) AddFlags(flags interface{}) *Cli {
+	c.rootCommand.AddFlags(flags)
 	return c
 }
 

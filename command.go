@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"reflect"
 	"strings"
 )
 
@@ -218,6 +219,42 @@ func (c *Command) NewSubCommandInheritFlags(name, description string) *Command {
 func (c *Command) BoolFlag(name, description string, variable *bool) *Command {
 	c.flags.BoolVar(variable, name, *variable, description)
 	c.flagCount++
+	return c
+}
+
+func (c *Command) AddFlags(optionStruct interface{}) *Command {
+	// use reflection to determine if this is a pointer to a struct
+	// if not, panic
+
+	t := reflect.TypeOf(optionStruct)
+	if t.Kind() != reflect.Ptr {
+		panic("AddFlags requires a pointer to a struct")
+	}
+
+	// Iterate through the fields of the struct reading the struct tags
+	// and adding the flags
+	v := reflect.ValueOf(optionStruct).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		tag := t.Elem().Field(i).Tag
+		name := tag.Get("name")
+		description := tag.Get("description")
+		if name == "" {
+			name = strings.ToLower(t.Elem().Field(i).Name)
+		}
+		if description == "" {
+			description = "No description"
+		}
+		switch field.Kind() {
+		case reflect.Bool:
+			c.BoolFlag(name, description, field.Addr().Interface().(*bool))
+		case reflect.String:
+			c.StringFlag(name, description, field.Addr().Interface().(*string))
+		case reflect.Int:
+			c.IntFlag(name, description, field.Addr().Interface().(*int))
+		}
+	}
+
 	return c
 }
 
