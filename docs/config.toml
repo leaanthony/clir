@@ -1,0 +1,17 @@
+baseURL = "https://clir.leaanthony.com/"
+languageCode = "en-us"
+title = "Clîr"
+theme = "hugo-theme-learn"
+pygmentsCodeFences = true
+
+[params]
+  themeVariant = "custom"
+  editURL = "https://github.com/leaanthony/clirdocs/edit/master/content/"
+  # Author of the site, will be used in meta information
+  author = "Lea Anthony"
+  # Description of the site, will be used in meta information
+  description = "Documentation site for the Clîr library"
+
+# For search functionality
+[outputs]
+  home = [ "HTML", "RSS", "JSON"]
