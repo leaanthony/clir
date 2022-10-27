@@ -242,9 +242,6 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 		if name == "" {
 			name = strings.ToLower(t.Elem().Field(i).Name)
 		}
-		if description == "" {
-			description = "No description"
-		}
 		switch field.Kind() {
 		case reflect.Bool:
 			c.BoolFlag(name, description, field.Addr().Interface().(*bool))

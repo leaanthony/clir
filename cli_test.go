@@ -74,10 +74,11 @@ func TestCli(t *testing.T) {
 }
 
 type testStruct struct {
-	Mode string `name:"mode" description:"The mode of build"`
+	Mode  string `name:"mode" description:"The mode of build"`
+	Count int
 }
 
-func TestCli_AddFlags(t *testing.T) {
+func TestCli_CLIAddFlags(t *testing.T) {
 	c := NewCli("test", "description", "0")
 
 	ts := &testStruct{}
@@ -104,4 +105,25 @@ func TestCli_AddFlags(t *testing.T) {
 	if e != nil {
 		t.Errorf("expected no error, got %v", e)
 	}
+
+}
+
+func TestCli_CommandAddFlags(t *testing.T) {
+	c := NewCli("test", "description", "0")
+	sub := c.NewSubCommand("sub", "sub description")
+
+	ts := &testStruct{}
+	sub.AddFlags(ts)
+
+	sub.Action(func() error {
+		if ts.Mode != "123" {
+			t.Errorf("expected flag value to be set")
+		}
+		return nil
+	})
+	e := c.Run("sub", "-mode", "123")
+	if e != nil {
+		t.Errorf("expected no error, got %v", e)
+	}
+
 }
