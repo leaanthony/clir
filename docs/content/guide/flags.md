@@ -57,7 +57,7 @@ Flags:
         Your name
 ```
 
-## Defining flags using a struct
+### Defining flags using a struct
 
 It's also possible to add flags using a struct. This is useful as you can easily
 add flags to your application without having to define them in multiple places:
@@ -67,41 +67,41 @@ package main
 
 import (
 	"github.com/leaanthony/clir"
-	"golang.org/x/arch/arm/armasm"
 )
 
-type Config struct {
-	Name    string `name:"name"    description:"Your name"`
-	Age     int    `name:"age"     description:"Your age"`
-	Awesome bool   `name:"awesome" description:"Are you awesome?"`
+type Flags struct {
+	Name string `name:"name" description:"The name of the person"`
+	Age  int    `name:"age" description:"The age of the person"`
 }
 
 func main() {
 
-	// Create the application
-	cli := clir.NewCli("Flags", "A simple example", "v0.0.1")
+	// Create new cli
+	cli := clir.NewCli("flagstruct", "An example of subcommands with flag inherence", "v0.0.1")
 
-	// Create a config struct. You can specify defaults here
-	config := &Config{
-		Awesome: true,
+	// Create an init subcommand with flag inheritance
+	init := cli.NewSubCommand("create", "Create a person")
+	person := &Flags{
+		Age: 20,
+	}
+	init.AddFlags(person)
+	init.Action(func() error {
+		println("Name:", person.Name, "Age:", person.Age)
+		return nil
+	})
+
+	// Run!
+	if err := cli.Run(); err != nil {
+		panic(err)
 	}
 
-	// Add the flags
-	cli.AddFlags(config)
-
-	// Run the application
-	err := cli.Run()
-	if err != nil {
-		// We had an error
-		log.Fatal(err)
-	}
 }
 ```
 
 
-## API
+### API
 
-### Cli.StringFlag(name string, description string, variable *string)
+#### Cli.StringFlag(name string, description string, variable *string)
 
 The [StringFlag](https://godoc.org/github.com/leaanthony/clir#StringFlag) method defines a string flag for your Clîr application. 
 
@@ -112,7 +112,7 @@ For the example above, you would pass in a name as follows:
 ```
 
 
-### Cli.IntFlag(name string, description string, variable *int)
+#### Cli.IntFlag(name string, description string, variable *int)
 
 The [IntFlag](https://godoc.org/github.com/leaanthony/clir#IntFlag) method defines an integer flag for your Clîr application. 
 
@@ -123,7 +123,7 @@ For the example above, you would pass in a value for age as follows:
 ```
 
 
-### Cli.BoolFlag(name string, description string, variable *bool)
+#### Cli.BoolFlag(name string, description string, variable *bool)
 
 The [BoolFlag](https://godoc.org/github.com/leaanthony/clir#BoolFlag) method defines a boolean flag for your Clîr application. 
 
@@ -133,7 +133,7 @@ For the example above, you would you were awesome by simply passing in the flag:
 > flags -awesome
 ```
 
-### Cli.AddFlags(config interface{})
+#### Cli.AddFlags(config interface{})
 
 The [AddFlags](https://godoc.org/github.com/leaanthony/clir#AddFlags) method defines flags for your Clîr application 
 using a struct. It uses the `name` and `description` tags to define the flag name and description.
