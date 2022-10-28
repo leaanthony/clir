@@ -141,3 +141,8 @@ func (c *Cli) LongDescription(longdescription string) *Cli {
 func (c *Cli) OtherArgs() []string {
 	return c.rootCommand.flags.Args()
 }
+
+func (c *Cli) NewSubCommandFunction(name string, description string, test interface{}) *Cli {
+	c.rootCommand.NewSubCommandFunction(name, description, test)
+	return c
+}

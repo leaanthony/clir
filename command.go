@@ -227,8 +227,13 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 	// if not, panic
 
 	t := reflect.TypeOf(optionStruct)
+
+	// Check for a pointer to a struct
 	if t.Kind() != reflect.Ptr {
-		panic("AddFlags requires a pointer to a struct")
+		panic("Options must be a pointer to a struct")
+	}
+	if t.Elem().Kind() != reflect.Struct {
+		panic("Options must be a pointer to a struct")
 	}
 
 	// Iterate through the fields of the struct reading the struct tags
@@ -278,4 +283,85 @@ func (c *Command) LongDescription(longdescription string) *Command {
 // OtherArgs - Returns the non-flag arguments passed to the subcommand. NOTE: This should only be called within the context of an action.
 func (c *Command) OtherArgs() []string {
 	return c.flags.Args()
+}
+
+func (c *Command) NewSubCommandFunction(name string, description string, fn interface{}) *Command {
+	result := c.NewSubCommand(name, description)
+	// use reflection to determine if this is a function
+	// if not, panic
+	t := reflect.TypeOf(fn)
+	if t.Kind() != reflect.Func {
+		panic("NewSubFunction requires a function")
+	}
+
+	// Check the function has 1 input ant it's a struct pointer
+	fnValue := reflect.ValueOf(fn)
+	if t.NumIn() != 1 {
+		panic("NewSubFunction requires a function with 1 input")
+	}
+	// Check the input is a struct pointer
+	if t.In(0).Kind() != reflect.Ptr {
+		panic("NewSubFunction requires a function with a pointer to a struct as input")
+	}
+	if t.In(0).Elem().Kind() != reflect.Struct {
+		panic("NewSubFunction requires a function with a pointer to a struct as input")
+	}
+	// Check only 1 output and it's an error
+	if t.NumOut() != 1 {
+		panic("NewSubFunction requires a function with 1 output")
+	}
+	if t.Out(0) != reflect.TypeOf((*error)(nil)).Elem() {
+		panic("NewSubFunction requires a function with an error output")
+	}
+	flags := reflect.New(t.In(0).Elem())
+	defaultMethod, ok := t.In(0).MethodByName("Default")
+
+	if ok {
+		// Check the default method has no inputs
+		if defaultMethod.Type.NumIn() != 1 {
+			panic("Default method must have no inputs")
+		}
+
+		// Check the default method has a single struct output
+		if defaultMethod.Type.NumOut() != 1 {
+			panic("Default method must return a struct")
+		}
+
+		// Check the default method has a single struct output
+		if defaultMethod.Type.Out(0) != t.In(0) {
+			panic("Default method must return a struct of the same type")
+		}
+
+		// Call defaultMethod to get default flags
+		results := defaultMethod.Func.Call([]reflect.Value{flags})
+		if len(results) != 1 {
+			panic("Default method should return struct")
+		}
+		// check there is only one result, and it's a pointer to the struct
+		if results[0].Kind() != reflect.Ptr {
+			panic("Default method should return pointer to struct")
+		}
+		// check there is only one result, and it's a pointer to the struct
+		if results[0].Elem().Kind() != reflect.Struct {
+			panic("Default method should return pointer to struct")
+		}
+		if results[0].Type() != t.In(0) {
+			panic("Default method should return struct")
+		}
+		flags = results[0]
+	}
+	//result.AddFlags(flags)
+	result.Action(func() error {
+		// Check if the struct has a Default method
+		// and call it if it does
+
+		result := fnValue.Call([]reflect.Value{flags})[0].Interface()
+		if result != nil {
+			return result.(error)
+		}
+		return nil
+	})
+	// Create a new input and get the pointer to it
+	result.AddFlags(flags.Interface())
+	return result
 }
