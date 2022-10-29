@@ -230,10 +230,10 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 
 	// Check for a pointer to a struct
 	if t.Kind() != reflect.Ptr {
-		panic("Options must be a pointer to a struct")
+		panic("AddFlags() requires a pointer to a struct")
 	}
 	if t.Elem().Kind() != reflect.Struct {
-		panic("Options must be a pointer to a struct")
+		panic("AddFlags() requires a pointer to a struct")
 	}
 
 	// Iterate through the fields of the struct reading the struct tags
@@ -291,27 +291,27 @@ func (c *Command) NewSubCommandFunction(name string, description string, fn inte
 	// if not, panic
 	t := reflect.TypeOf(fn)
 	if t.Kind() != reflect.Func {
-		panic("NewSubFunction requires a function")
+		panic("NewSubFunction '" + name + "' requires a function with the signature 'func(*struct) error'")
 	}
 
 	// Check the function has 1 input ant it's a struct pointer
 	fnValue := reflect.ValueOf(fn)
 	if t.NumIn() != 1 {
-		panic("NewSubFunction requires a function with 1 input")
+		panic("NewSubFunction '" + name + "' requires a function with the signature 'func(*struct) error'")
 	}
 	// Check the input is a struct pointer
 	if t.In(0).Kind() != reflect.Ptr {
-		panic("NewSubFunction requires a function with a pointer to a struct as input")
+		panic("NewSubFunction '" + name + "' requires a function with the signature 'func(*struct) error'")
 	}
 	if t.In(0).Elem().Kind() != reflect.Struct {
-		panic("NewSubFunction requires a function with a pointer to a struct as input")
+		panic("NewSubFunction '" + name + "' requires a function with the signature 'func(*struct) error'")
 	}
 	// Check only 1 output and it's an error
 	if t.NumOut() != 1 {
-		panic("NewSubFunction requires a function with 1 output")
+		panic("NewSubFunction '" + name + "' requires a function with the signature 'func(*struct) error'")
 	}
 	if t.Out(0) != reflect.TypeOf((*error)(nil)).Elem() {
-		panic("NewSubFunction requires a function with an error output")
+		panic("NewSubFunction '" + name + "' requires a function with the signature 'func(*struct) error'")
 	}
 	flags := reflect.New(t.In(0).Elem())
 	defaultMethod, ok := t.In(0).MethodByName("Default")
@@ -319,49 +319,30 @@ func (c *Command) NewSubCommandFunction(name string, description string, fn inte
 	if ok {
 		// Check the default method has no inputs
 		if defaultMethod.Type.NumIn() != 1 {
-			panic("Default method must have no inputs")
+			panic("'Default' method on struct '" + t.In(0).Elem().Name() + "' must have the signature 'Default() *" + t.In(0).Elem().Name() + "'")
 		}
 
 		// Check the default method has a single struct output
 		if defaultMethod.Type.NumOut() != 1 {
-			panic("Default method must return a struct")
+			panic("'Default' method on struct '" + t.In(0).Elem().Name() + "' must have the signature 'Default() *" + t.In(0).Elem().Name() + "'")
 		}
 
 		// Check the default method has a single struct output
 		if defaultMethod.Type.Out(0) != t.In(0) {
-			panic("Default method must return a struct of the same type")
+			panic("'Default' method on struct '" + t.In(0).Elem().Name() + "' must have the signature 'Default() *" + t.In(0).Elem().Name() + "'")
 		}
 
 		// Call defaultMethod to get default flags
 		results := defaultMethod.Func.Call([]reflect.Value{flags})
-		if len(results) != 1 {
-			panic("Default method should return struct")
-		}
-		// check there is only one result, and it's a pointer to the struct
-		if results[0].Kind() != reflect.Ptr {
-			panic("Default method should return pointer to struct")
-		}
-		// check there is only one result, and it's a pointer to the struct
-		if results[0].Elem().Kind() != reflect.Struct {
-			panic("Default method should return pointer to struct")
-		}
-		if results[0].Type() != t.In(0) {
-			panic("Default method should return struct")
-		}
 		flags = results[0]
 	}
-	//result.AddFlags(flags)
 	result.Action(func() error {
-		// Check if the struct has a Default method
-		// and call it if it does
-
 		result := fnValue.Call([]reflect.Value{flags})[0].Interface()
 		if result != nil {
 			return result.(error)
 		}
 		return nil
 	})
-	// Create a new input and get the pointer to it
 	result.AddFlags(flags.Interface())
 	return result
 }

@@ -2,7 +2,6 @@ package clir
 
 import (
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -42,11 +41,6 @@ func (c *Cli) SetBannerFunction(fn func(*Cli) string) {
 // the commnad path used. Second argument is the undefined flag error.
 func (c *Cli) SetErrorFunction(fn func(string, error) error) {
 	c.errorHandler = fn
-}
-
-// Abort - Prints the given error and terminates the application.
-func (c *Cli) Abort(err error) {
-	log.Fatal(err)
 }
 
 // AddCommand - Adds a command to the application.

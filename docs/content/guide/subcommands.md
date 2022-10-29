@@ -249,6 +249,41 @@ func main() {
 
 This really helps with better code organisation.
 
+### Adding Subcommands with Functions
+
+You can also add SubCommands using a function:
+
+```go
+type AppFlags struct {
+    Name string `flag:"name" description:"The name of the person"`
+    Age  int `flag:"age" description:"The age of the person"`
+}
+
+// Default is an optional method that provides the default values for the flags
+func (t AppFlags) Default() *AppFlags {
+    return &AppFlags{
+        Name: "Bob",
+        Age:  20,
+    }
+}
+
+func main() {
+    // Create new cli
+    cli := clir.NewCli("Flags", "An example of using flags", "v0.0.1")
+    
+    cli.NewSubCommandFunction("create", "Create a new person", createPerson)
+    cli.Run()
+}
+
+func createPerson(flags *AppFlags) error {
+    fmt.Printf("%+v\n", flags)
+    return nil
+}
+```
+
+The NewSubCommandFunction method takes a function that takes a pointer to the flags struct and returns an error. 
+The function is called when the command is run and passes in the flags struct with the values set from the command line.
+
 ### Inheriting Flags
 
 The `NewSubCommandInheritFlags` method will create a subcommand in the usual way but will inherit all previously defined flags in the parent.

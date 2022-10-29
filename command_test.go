@@ -170,6 +170,6 @@ func TestCommand(t *testing.T) {
 
 	t.Run("Run LongDescription()", func(t *testing.T) {
 		c.LongDescription("name")
-
 	})
+
 }
