@@ -241,6 +241,10 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 	v := reflect.ValueOf(optionStruct).Elem()
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
+		fieldType := t.Elem().Field(i)
+		if !fieldType.IsExported() {
+			continue
+		}
 		tag := t.Elem().Field(i).Tag
 		name := tag.Get("name")
 		description := tag.Get("description")
