@@ -245,6 +245,12 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 		if !fieldType.IsExported() {
 			continue
 		}
+		// If this is an embedded struct, recurse
+		if fieldType.Type.Kind() == reflect.Struct {
+			c.AddFlags(field.Addr().Interface())
+			continue
+		}
+
 		tag := t.Elem().Field(i).Tag
 		name := tag.Get("name")
 		description := tag.Get("description")
