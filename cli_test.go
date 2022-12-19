@@ -247,7 +247,13 @@ func TestCli_CommandOtherCLIArgs(t *testing.T) {
 }
 
 type Person struct {
-	Name string `description:"The name of the person"`
+	Name        string  `description:"The name of the person"`
+	Age         int     `description:"The age of the person"`
+	SSN         uint    `description:"The SSN of the person"`
+	Age64       int64   `description:"The age of the person"`
+	SSN64       uint64  `description:"The SSN of the person"`
+	BankBalance float64 `description:"The bank balance of the person"`
+	Married     bool    `description:"Whether the person is married"`
 }
 
 func TestCli_CommandAddFunction(t *testing.T) {
@@ -257,12 +263,30 @@ func TestCli_CommandAddFunction(t *testing.T) {
 		if person.Name != "Bob" {
 			t.Errorf("expected name flag to be 'Bob', got %v", person.Name)
 		}
+		if person.Age != 30 {
+			t.Errorf("expected age flag to be 30, got %v", person.Age)
+		}
+		if person.SSN != 123456789 {
+			t.Errorf("expected ssn flag to be 123456789, got %v", person.SSN)
+		}
+		if person.Age64 != 30 {
+			t.Errorf("expected age64 flag to be 30, got %v", person.Age64)
+		}
+		if person.SSN64 != 123456789 {
+			t.Errorf("expected ssn64 flag to be 123456789, got %v", person.SSN64)
+		}
+		if person.BankBalance != 123.45 {
+			t.Errorf("expected bankbalance flag to be 123.45, got %v", person.BankBalance)
+		}
+		if person.Married != true {
+			t.Errorf("expected married flag to be true, got %v", person.Married)
+		}
 		return nil
 	}
 
 	c.NewSubCommandFunction("create", "create a person", createPerson)
 
-	e := c.Run("create", "-name", "Bob")
+	e := c.Run("create", "-name", "Bob", "-age", "30", "-ssn", "123456789", "-age64", "30", "-ssn64", "123456789", "-bankbalance", "123.45", "-married")
 	if e != nil {
 		t.Errorf("expected no error, got %v", e)
 	}

@@ -215,13 +215,6 @@ func (c *Command) NewSubCommandInheritFlags(name, description string) *Command {
 	return result
 }
 
-// BoolFlag - Adds a boolean flag to the command
-func (c *Command) BoolFlag(name, description string, variable *bool) *Command {
-	c.flags.BoolVar(variable, name, *variable, description)
-	c.flagCount++
-	return c
-}
-
 func (c *Command) AddFlags(optionStruct interface{}) *Command {
 	// use reflection to determine if this is a pointer to a struct
 	// if not, panic
@@ -264,9 +257,26 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 			c.StringFlag(name, description, field.Addr().Interface().(*string))
 		case reflect.Int:
 			c.IntFlag(name, description, field.Addr().Interface().(*int))
+		case reflect.Int64:
+			c.Int64Flag(name, description, field.Addr().Interface().(*int64))
+		case reflect.Uint:
+			c.UintFlag(name, description, field.Addr().Interface().(*uint))
+		case reflect.Uint64:
+			c.UInt64Flag(name, description, field.Addr().Interface().(*uint64))
+		case reflect.Float64:
+			c.Float64Flag(name, description, field.Addr().Interface().(*float64))
+		default:
+			println("WARNING: Unsupported type for flag: ", fieldType.Type.Kind())
 		}
 	}
 
+	return c
+}
+
+// BoolFlag - Adds a boolean flag to the command
+func (c *Command) BoolFlag(name, description string, variable *bool) *Command {
+	c.flags.BoolVar(variable, name, *variable, description)
+	c.flagCount++
 	return c
 }
 
@@ -280,6 +290,34 @@ func (c *Command) StringFlag(name, description string, variable *string) *Comman
 // IntFlag - Adds an int flag to the command
 func (c *Command) IntFlag(name, description string, variable *int) *Command {
 	c.flags.IntVar(variable, name, *variable, description)
+	c.flagCount++
+	return c
+}
+
+// Int64Flag - Adds an int flag to the command
+func (c *Command) Int64Flag(name, description string, variable *int64) *Command {
+	c.flags.Int64Var(variable, name, *variable, description)
+	c.flagCount++
+	return c
+}
+
+// UintFlag - Adds an int flag to the command
+func (c *Command) UintFlag(name, description string, variable *uint) *Command {
+	c.flags.UintVar(variable, name, *variable, description)
+	c.flagCount++
+	return c
+}
+
+// UInt64Flag - Adds an int flag to the command
+func (c *Command) UInt64Flag(name, description string, variable *uint64) *Command {
+	c.flags.Uint64Var(variable, name, *variable, description)
+	c.flagCount++
+	return c
+}
+
+// Float64Flag - Adds a float64 flag to the command
+func (c *Command) Float64Flag(name, description string, variable *float64) *Command {
+	c.flags.Float64Var(variable, name, *variable, description)
 	c.flagCount++
 	return c
 }
