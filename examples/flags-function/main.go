@@ -7,29 +7,13 @@ import (
 )
 
 type EmbeddedFlags struct {
-	Address string `flag:"address" description:"The address of the person"`
-}
-
-func (e EmbeddedFlags) Default() EmbeddedFlags {
-	return EmbeddedFlags{
-		Address: "123 Main Street",
-	}
+	Address string `flag:"address" description:"The address of the person" default:"123 Main Street"`
 }
 
 type AppFlags struct {
 	EmbeddedFlags
-	Name string
-	Age  int
-}
-
-// Default is an optional method that provides the default values for the flags
-func (t AppFlags) Default() *AppFlags {
-	result := &AppFlags{
-		Name: "Bob",
-		Age:  20,
-	}
-	result.EmbeddedFlags = result.EmbeddedFlags.Default()
-	return result
+	Name string `default:"Bob"`
+	Age  int    `default:"20"`
 }
 
 func main() {

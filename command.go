@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -247,23 +248,77 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 		tag := t.Elem().Field(i).Tag
 		name := tag.Get("name")
 		description := tag.Get("description")
+		defaultValue := tag.Get("default")
 		if name == "" {
 			name = strings.ToLower(t.Elem().Field(i).Name)
 		}
 		switch field.Kind() {
 		case reflect.Bool:
+			var defaultValueBool bool
+			if defaultValue != "" {
+				var err error
+				defaultValueBool, err = strconv.ParseBool(defaultValue)
+				if err != nil {
+					panic("Invalid default value for bool flag")
+				}
+			}
+			field.SetBool(defaultValueBool)
 			c.BoolFlag(name, description, field.Addr().Interface().(*bool))
 		case reflect.String:
+			if defaultValue != "" {
+				// set value of field to default value
+				field.SetString(defaultValue)
+			}
 			c.StringFlag(name, description, field.Addr().Interface().(*string))
 		case reflect.Int:
+			if defaultValue != "" {
+				// set value of field to default value
+				value, err := strconv.Atoi(defaultValue)
+				if err != nil {
+					panic("Invalid default value for int flag")
+				}
+				field.SetInt(int64(value))
+			}
 			c.IntFlag(name, description, field.Addr().Interface().(*int))
 		case reflect.Int64:
+			if defaultValue != "" {
+				// set value of field to default value
+				value, err := strconv.Atoi(defaultValue)
+				if err != nil {
+					panic("Invalid default value for int flag")
+				}
+				field.SetInt(int64(value))
+			}
 			c.Int64Flag(name, description, field.Addr().Interface().(*int64))
 		case reflect.Uint:
+			if defaultValue != "" {
+				// set value of field to default value
+				value, err := strconv.Atoi(defaultValue)
+				if err != nil {
+					panic("Invalid default value for int flag")
+				}
+				field.SetUint(uint64(value))
+			}
 			c.UintFlag(name, description, field.Addr().Interface().(*uint))
 		case reflect.Uint64:
+			if defaultValue != "" {
+				// set value of field to default value
+				value, err := strconv.Atoi(defaultValue)
+				if err != nil {
+					panic("Invalid default value for int flag")
+				}
+				field.SetUint(uint64(value))
+			}
 			c.UInt64Flag(name, description, field.Addr().Interface().(*uint64))
 		case reflect.Float64:
+			if defaultValue != "" {
+				// set value of field to default value
+				value, err := strconv.ParseFloat(defaultValue, 64)
+				if err != nil {
+					panic("Invalid default value for float flag")
+				}
+				field.SetFloat(value)
+			}
 			c.Float64Flag(name, description, field.Addr().Interface().(*float64))
 		default:
 			println("WARNING: Unsupported type for flag: ", fieldType.Type.Kind())
@@ -362,28 +417,6 @@ func (c *Command) NewSubCommandFunction(name string, description string, fn inte
 		panic("NewSubFunction '" + name + "' requires a function with the signature 'func(*struct) error'")
 	}
 	flags := reflect.New(t.In(0).Elem())
-	defaultMethod, ok := t.In(0).MethodByName("Default")
-
-	if ok {
-		// Check the default method has no inputs
-		if defaultMethod.Type.NumIn() != 1 {
-			panic("'Default' method on struct '" + t.In(0).Elem().Name() + "' must have the signature 'Default() *" + t.In(0).Elem().Name() + "'")
-		}
-
-		// Check the default method has a single struct output
-		if defaultMethod.Type.NumOut() != 1 {
-			panic("'Default' method on struct '" + t.In(0).Elem().Name() + "' must have the signature 'Default() *" + t.In(0).Elem().Name() + "'")
-		}
-
-		// Check the default method has a single struct output
-		if defaultMethod.Type.Out(0) != t.In(0) {
-			panic("'Default' method on struct '" + t.In(0).Elem().Name() + "' must have the signature 'Default() *" + t.In(0).Elem().Name() + "'")
-		}
-
-		// Call defaultMethod to get default flags
-		results := defaultMethod.Func.Call([]reflect.Value{flags})
-		flags = results[0]
-	}
 	result.Action(func() error {
 		result := fnValue.Call([]reflect.Value{flags})[0].Interface()
 		if result != nil {

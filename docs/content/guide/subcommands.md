@@ -255,16 +255,8 @@ You can also add SubCommands using a function:
 
 ```go
 type AppFlags struct {
-    Name string `flag:"name" description:"The name of the person"`
-    Age  int `flag:"age" description:"The age of the person"`
-}
-
-// Default is an optional method that provides the default values for the flags
-func (t AppFlags) Default() *AppFlags {
-    return &AppFlags{
-        Name: "Bob",
-        Age:  20,
-    }
+    Name string `name:"name" description:"The name of the person" default:"Bob"`
+    Age  int `name:"age" description:"The age of the person" default:"20"`
 }
 
 func main() {

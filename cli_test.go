@@ -294,11 +294,7 @@ func TestCli_CommandAddFunction(t *testing.T) {
 }
 
 type Person2 struct {
-	Name string `description:"The name of the person"`
-}
-
-func (p *Person2) Default() *Person2 {
-	return &Person2{Name: "Janet"}
+	Name string `description:"The name of the person" default:"Janet"`
 }
 
 func TestCli_CommandAddFunctionDefaults(t *testing.T) {
@@ -470,139 +466,6 @@ func TestCli_CommandAddFunctionWrongReturnError(t *testing.T) {
 	}
 }
 
-type Person3 struct {
-	Name string `description:"The name of the person"`
-}
-
-func (p *Person3) Default(_ int) *Person3 {
-	return &Person3{Name: "Janet"}
-}
-
-func TestCli_CommandAddFunctionDefaultWrongInputError(t *testing.T) {
-	c := NewCli("test", "description", "0")
-
-	recoverTest := func() {
-		var r interface{}
-		if r = recover(); r == nil {
-			t.Errorf("expected panic")
-		}
-		if r.(string) != "'Default' method on struct 'Person3' must have the signature 'Default() *Person3'" {
-			t.Errorf(`expected error message to be: "NewSubFunction 'create' requires a function with the signature 'func(*struct) error'". Got: "` + r.(string) + `"`)
-		}
-	}
-
-	defer recoverTest()
-
-	c.NewSubCommandFunction("create", "create a person", func(person *Person3) error {
-		return nil
-	})
-
-	e := c.Run("create")
-	if e != nil {
-		t.Errorf("expected no error, got %v", e)
-	}
-}
-
-type Person4 struct {
-	Name string `description:"The name of the person"`
-}
-
-func (p *Person4) Default() int {
-	return 0
-}
-
-func TestCli_CommandAddFunctionDefaultWrongOutputError(t *testing.T) {
-	c := NewCli("test", "description", "0")
-
-	recoverTest := func() {
-		var r interface{}
-		if r = recover(); r == nil {
-			t.Errorf("expected panic")
-		}
-		if r.(string) != "'Default' method on struct 'Person4' must have the signature 'Default() *Person4'" {
-			t.Errorf(`expected error message to be: "NewSubFunction 'create' requires a function with the signature 'func(*struct) error'". Got: "` + r.(string) + `"`)
-		}
-	}
-
-	defer recoverTest()
-
-	c.NewSubCommandFunction("create", "create a person", func(person *Person4) error {
-		return nil
-	})
-
-	e := c.Run("create")
-	if e != nil {
-		t.Errorf("expected no error, got %v", e)
-	}
-}
-
-type Person5 struct {
-	Name string `description:"The name of the person"`
-}
-
-func (p *Person5) Default(_ int, _ int) int {
-	return 0
-}
-
-func TestCli_CommandAddFunctionDefaultWrongNumberOfInputsError(t *testing.T) {
-	c := NewCli("test", "description", "0")
-
-	recoverTest := func() {
-		var r interface{}
-		if r = recover(); r == nil {
-			t.Errorf("expected panic")
-		}
-		if r.(string) != "'Default' method on struct 'Person5' must have the signature 'Default() *Person5'" {
-			t.Errorf(`expected error message to be: "NewSubFunction 'create' requires a function with the signature 'func(*struct) error'". Got: "` + r.(string) + `"`)
-		}
-	}
-
-	defer recoverTest()
-
-	c.NewSubCommandFunction("create", "create a person", func(person *Person5) error {
-		return nil
-	})
-
-	e := c.Run("create")
-	if e != nil {
-		t.Errorf("expected no error, got %v", e)
-	}
-}
-
-type Person6 struct {
-	Name  string `description:"The name of the person"`
-	Admin bool   `description:"Is the person an admin"`
-}
-
-func (p *Person6) Default() (int, int) {
-	return 0, 0
-}
-
-func TestCli_CommandAddFunctionDefaultWrongNumberOfOutputsError(t *testing.T) {
-	c := NewCli("test", "description", "0")
-
-	recoverTest := func() {
-		var r interface{}
-		if r = recover(); r == nil {
-			t.Errorf("expected panic")
-		}
-		if r.(string) != "'Default' method on struct 'Person6' must have the signature 'Default() *Person6'" {
-			t.Errorf(`expected error message to be: "NewSubFunction 'create' requires a function with the signature 'func(*struct) error'". Got: "` + r.(string) + `"`)
-		}
-	}
-
-	defer recoverTest()
-
-	c.NewSubCommandFunction("create", "create a person", func(person *Person6) error {
-		return nil
-	})
-
-	e := c.Run("create")
-	if e != nil {
-		t.Errorf("expected no error, got %v", e)
-	}
-}
-
 func TestCli_CommandAddFunctionDefaultWrongTypeOfInputsError(t *testing.T) {
 	c := NewCli("test", "description", "0")
 
@@ -643,5 +506,43 @@ func TestCli_CommandAddFunctionReturnsAnError(t *testing.T) {
 	e := c.Run("create")
 	if e == nil {
 		t.Errorf("expected error, got nil")
+	}
+}
+
+type Person8 struct {
+	Name         string  `description:"The name of the person" default:"bob"`
+	Age          uint    `description:"The age of the person" default:"40"`
+	NumberOfPets int     `description:"The number of pets the person has" default:"2"`
+	Salary       float64 `description:"The salary of the person" default:"100000.00"`
+	Admin        bool    `description:"Is the person an admin" default:"true"`
+}
+
+func TestCli_CommandAddFunctionUsesDefaults(t *testing.T) {
+	c := NewCli("test", "description", "0")
+
+	createPerson := func(person *Person8) error {
+		if person.Name != "bob" {
+			t.Errorf("expected name flag to be 'Bob', got %v", person.Name)
+		}
+		if person.Age != 40 {
+			t.Errorf("expected age flag to be 40, got %v", person.Age)
+		}
+		if person.NumberOfPets != 2 {
+			t.Errorf("expected NumberOfPets flag to be 2, got %v", person.NumberOfPets)
+		}
+		if person.Salary != 100000.00 {
+			t.Errorf("expected Salary flag to be 100000.00, got %v", person.Salary)
+		}
+		if person.Admin != true {
+			t.Errorf("expected Admin flag to be true, got %v", person.Admin)
+		}
+		return nil
+	}
+
+	c.NewSubCommandFunction("create", "create a person", createPerson)
+
+	e := c.Run("create")
+	if e != nil {
+		t.Errorf("expected no error, got %v", e)
 	}
 }
