@@ -18,6 +18,8 @@
 
   * Nested Subcommands
   * Uses the standard library `flag` package
+  * Struct based flags
+  * Positional Args
   * Auto-generated help
   * Custom banners
   * Hidden Subcommands
