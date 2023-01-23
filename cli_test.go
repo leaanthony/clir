@@ -509,6 +509,31 @@ func TestCli_CommandAddFunctionReturnsAnError(t *testing.T) {
 	}
 }
 
+type PosPerson struct {
+	Name  string `description:"The name of the person" pos:"1"`
+	Admin bool   `description:"Is the person an admin" pos:"2"`
+}
+
+func TestCli_PositionalArgs(t *testing.T) {
+	c := NewCli("test", "test positional args", "0")
+
+	c.NewSubCommandFunction("create", "create a person", func(person *PosPerson) error {
+		if person.Name != "bob" {
+			t.Errorf("expected 'bob', got '%v'", person.Name)
+		}
+		if person.Admin != true {
+			t.Errorf("expected true, got %v", person.Admin)
+		}
+		return nil
+	})
+
+	e := c.Run("create", "bob", "true")
+
+	if e == nil {
+		t.Errorf("expected error, got nil")
+	}
+}
+
 type Person8 struct {
 	Name         string  `description:"The name of the person" default:"bob"`
 	Age          uint    `description:"The age of the person" default:"40"`

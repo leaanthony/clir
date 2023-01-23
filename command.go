@@ -1,6 +1,7 @@
 package clir
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -24,16 +25,18 @@ type Command struct {
 	flagCount         int
 	helpFlag          bool
 	hidden            bool
+	positionalArgsMap map[string]reflect.Value
 }
 
 // NewCommand creates a new Command
 // func NewCommand(name string, description string, app *Cli, parentCommandPath string) *Command {
 func NewCommand(name string, description string) *Command {
 	result := &Command{
-		name:             name,
-		shortdescription: description,
-		subCommandsMap:   make(map[string]*Command),
-		hidden:           false,
+		name:              name,
+		shortdescription:  description,
+		subCommandsMap:    make(map[string]*Command),
+		hidden:            false,
+		positionalArgsMap: make(map[string]reflect.Value),
 	}
 
 	return result
@@ -72,9 +75,39 @@ func (c *Command) parseFlags(args []string) error {
 	// Parse flags
 	tmp := os.Stderr
 	os.Stderr = nil
-	err := c.flags.Parse(args)
-	os.Stderr = tmp
-	return err
+	defer func() {
+		os.Stderr = tmp
+	}()
+
+	var positionalArgs []string
+	for {
+		if err := c.flags.Parse(args); err != nil {
+			return err
+		}
+		// Consume all the flags that were parsed as flags.
+		args = args[len(args)-c.flags.NArg():]
+		if len(args) == 0 {
+			break
+		}
+		// There's at least one flag remaining and it must be a positional arg since
+		// we consumed all args that were parsed as flags. Consume just the first
+		// one, and retry parsing, since subsequent args may be flags.
+		positionalArgs = append(positionalArgs, args[0])
+		args = args[1:]
+	}
+
+	// Parse just the positional args so that flagset.Args()/flagset.NArgs()
+	// return the expected value.
+	// Note: This should never return an error.
+	err := c.flags.Parse(positionalArgs)
+	if err != nil {
+		return err
+	}
+
+	if len(positionalArgs) > 0 {
+		return c.parsePositionalArgs(positionalArgs)
+	}
+	return nil
 }
 
 // Run - Runs the Command with the given arguments
@@ -249,6 +282,8 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 		name := tag.Get("name")
 		description := tag.Get("description")
 		defaultValue := tag.Get("default")
+		pos := tag.Get("pos")
+		c.positionalArgsMap[pos] = field
 		if name == "" {
 			name = strings.ToLower(t.Elem().Field(i).Name)
 		}
@@ -321,7 +356,9 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 			}
 			c.Float64Flag(name, description, field.Addr().Interface().(*float64))
 		default:
-			println("WARNING: Unsupported type for flag: ", fieldType.Type.Kind())
+			if pos != "" {
+				println("WARNING: Unsupported type for flag: ", fieldType.Type.Kind())
+			}
 		}
 	}
 
@@ -426,4 +463,53 @@ func (c *Command) NewSubCommandFunction(name string, description string, fn inte
 	})
 	result.AddFlags(flags.Interface())
 	return result
+}
+
+func (c *Command) parsePositionalArgs(args []string) error {
+	for index, posArg := range args {
+		// Check the map for a field for this arg
+		key := strconv.Itoa(index + 1)
+		field, ok := c.positionalArgsMap[key]
+		if !ok {
+			continue
+		}
+		fieldType := field.Type()
+		switch fieldType.Kind() {
+		case reflect.String:
+			field.SetString(posArg)
+		case reflect.Int:
+			value, err := strconv.Atoi(posArg)
+			if err != nil {
+				return err
+			}
+			field.SetInt(int64(value))
+		case reflect.Int64:
+			value, err := strconv.ParseInt(posArg, 10, 64)
+			if err != nil {
+				return err
+			}
+			field.SetInt(value)
+		case reflect.Uint:
+			value, err := strconv.ParseUint(posArg, 10, 64)
+			if err != nil {
+				return err
+			}
+			field.SetUint(value)
+		case reflect.Uint64:
+			value, err := strconv.ParseUint(posArg, 10, 64)
+			if err != nil {
+				return err
+			}
+			field.SetUint(value)
+		case reflect.Float64:
+			value, err := strconv.ParseFloat(posArg, 64)
+			if err != nil {
+				return err
+			}
+			field.SetFloat(value)
+		default:
+			return errors.New("Unsupported type for positional argument: " + fieldType.Name())
+		}
+	}
+	return nil
 }

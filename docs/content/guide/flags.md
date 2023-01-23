@@ -98,6 +98,84 @@ func main() {
 }
 ```
 
+### Defining flags using a struct with default values
+
+It's also possible to add flags using a struct with default values. This is useful as you can easily add flags to your application without having to define them in multiple places:
+
+```go
+package main
+
+import (
+    "github.com/leaanthony/clir"
+)
+
+type Flags struct {
+    Name string `name:"name" description:"The name of the person" default:"John"`
+    Age  int    `name:"age" description:"The age of the person" default:"20"`
+}
+
+func main() {
+
+    // Create new cli
+    cli := clir.NewCli("default", "An example of subcommands with flag inheritance", "v0.0.1")
+
+    // Create an init subcommand with flag inheritance
+    init := cli.NewSubCommand("create", "Create a person")
+    person := &Flags{}
+    init.AddFlags(person)
+    init.Action(func() error {
+        println("Name:", person.Name, "Age:", person.Age)
+        return nil
+    })
+
+    // Run!
+    if err := cli.Run(); err != nil {
+        panic(err)
+    }
+
+}
+```
+
+### Defining positional arguments
+
+It is possible to define positional arguments. These are arguments that are not
+flags and are defined in the order they are passed to the application. For
+example:
+
+
+```go
+package main
+
+import (
+    "github.com/leaanthony/clir"
+)
+
+type Flags struct {
+    Name string `pos:"1" description:"The name of the person" default:"John"`
+    Age  int    `pos:"2" description:"The age of the person" default:"20"`
+}
+
+func main() {
+
+    // Create new cli
+    cli := clir.NewCli("default", "An example of subcommands with positional args", "v0.0.1")
+
+    // Create an init subcommand with flag inheritance
+    init := cli.NewSubCommand("create", "Create a person")
+    person := &Flags{}
+    init.AddFlags(person)
+    init.Action(func() error {
+        println("Name:", person.Name, "Age:", person.Age)
+        return nil
+    })
+
+    // Run!
+    if err := cli.Run("create", "bob", "30"); err != nil {
+        panic(err)
+    }
+
+}
+```
 
 ### API
 
