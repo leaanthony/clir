@@ -79,6 +79,7 @@ func (c *Command) parseFlags(args []string) error {
 		os.Stderr = tmp
 	}()
 
+	// Credit: https://stackoverflow.com/a/74146375
 	var positionalArgs []string
 	for {
 		if err := c.flags.Parse(args); err != nil {
