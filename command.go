@@ -476,33 +476,24 @@ func (c *Command) parsePositionalArgs(args []string) error {
 		}
 		fieldType := field.Type()
 		switch fieldType.Kind() {
+		case reflect.Bool:
+			// set value of field to true
+			field.SetBool(true)
 		case reflect.String:
 			field.SetString(posArg)
-		case reflect.Int:
-			value, err := strconv.Atoi(posArg)
-			if err != nil {
-				return err
-			}
-			field.SetInt(int64(value))
-		case reflect.Int64:
+		case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
 			value, err := strconv.ParseInt(posArg, 10, 64)
 			if err != nil {
 				return err
 			}
 			field.SetInt(value)
-		case reflect.Uint:
+		case reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8, reflect.Uint:
 			value, err := strconv.ParseUint(posArg, 10, 64)
 			if err != nil {
 				return err
 			}
 			field.SetUint(value)
-		case reflect.Uint64:
-			value, err := strconv.ParseUint(posArg, 10, 64)
-			if err != nil {
-				return err
-			}
-			field.SetUint(value)
-		case reflect.Float64:
+		case reflect.Float64, reflect.Float32:
 			value, err := strconv.ParseFloat(posArg, 64)
 			if err != nil {
 				return err

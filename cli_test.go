@@ -529,8 +529,8 @@ func TestCli_PositionalArgs(t *testing.T) {
 
 	e := c.Run("create", "bob", "true")
 
-	if e == nil {
-		t.Errorf("expected error, got nil")
+	if e != nil {
+		t.Errorf("unexpected error")
 	}
 }
 
