@@ -1,0 +1,78 @@
+site_name: Clîr
+
+theme:
+  name: material
+
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-4
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-7
+        name: Switch to light mode
+
+  features:
+    - navigation.footer
+    - content.action.edit
+    - navigation.sections
+    - content.code.copy
+
+  icon:
+    edit: material/pencil
+    logo: material/console-line
+
+extra_css:
+  - static/css/extra.css
+
+extra:
+  homepage: https://clir.leaanthony.com
+  version:
+    provider: mike
+
+copyright: Copyright &copy; 2020-Present Lea Anthony
+repo_url: https://github.com/leaanthony/clir
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+nav:
+  - index.md
+  - gettingstarted.md
+  - "Guide":
+      - guide/index.md
+      - guide/cli.md
+      - guide/flags.md
+      - guide/otherargs.md
+      - guide/actions.md
+      - guide/subcommands.md
+      - guide/custombanner.md
+  - Examples:
+      - examples/basic.md
+      - examples/chained.md
+      - examples/custom-banner.md
+      - examples/custom-flag-error.md
+      - examples/default.md
+      - examples/flags.md
+      - examples/flags-compact.md
+      - examples/flags-function.md
+      - examples/flags-positional.md
+      - examples/flagstruct.md
+      - examples/hidden.md
+      - examples/nested-subcommands.md
+      - examples/otherargs.md
+      - examples/subcommandinheritflags.md
+      - examples/subcommands.md
+  - faq.md
