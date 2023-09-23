@@ -157,19 +157,16 @@ func TestCommand(t *testing.T) {
 	})
 
 	t.Run("Run StringFlag()", func(t *testing.T) {
-		var variable = "variable"
+		variable := "variable"
 		c.StringFlag("name", "description", &variable)
-
 	})
 
 	t.Run("Run IntFlag()", func(t *testing.T) {
 		var variable int
 		c.IntFlag("test", "description", &variable)
-
 	})
 
 	t.Run("Run LongDescription()", func(t *testing.T) {
 		c.LongDescription("name")
 	})
-
 }

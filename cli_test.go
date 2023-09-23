@@ -31,6 +31,7 @@ func TestCli(t *testing.T) {
 
 		c.preRunCommand = func(*Cli) error { return errors.New("testing coverage") }
 		c.Run("test")
+		c.postRunCommand = func(*Cli) error { return errors.New("testing coverage") }
 	})
 
 	t.Run("Run DefaultCommand()", func(t *testing.T) {
@@ -43,6 +44,10 @@ func TestCli(t *testing.T) {
 
 	t.Run("Run PreRun()", func(t *testing.T) {
 		c.PreRun(func(*Cli) error { return nil })
+	})
+
+	t.Run("Run PostRun()", func(t *testing.T) {
+		c.PostRun(func(*Cli) error { return nil })
 	})
 
 	t.Run("Run BoolFlag()", func(t *testing.T) {
@@ -101,7 +106,6 @@ func TestCli_CLIAddFlags(t *testing.T) {
 	if e != nil {
 		t.Errorf("expected no error, got %v", e)
 	}
-
 }
 
 func TestCli_CommandAddFlags(t *testing.T) {
@@ -121,8 +125,8 @@ func TestCli_CommandAddFlags(t *testing.T) {
 	if e != nil {
 		t.Errorf("expected no error, got %v", e)
 	}
-
 }
+
 func TestCli_InheritFlags(t *testing.T) {
 	c := NewCli("test", "description", "0")
 	var name string
