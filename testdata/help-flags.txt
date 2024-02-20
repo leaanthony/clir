@@ -1,0 +1,67 @@
+#
+# no flags: print top-level help text
+#
+exec clir
+cmp stdout top-level-help
+! stderr .
+
+#
+# -help flag: print top level help text
+#
+exec clir -help
+cmp stdout top-level-help
+! stderr .
+
+# Introduced by PR #22
+# -h flag: print top level help text
+#
+exec clir -h
+cmp stdout top-level-help
+! stderr .
+
+#
+# known subcommand (foo): execute it
+#
+exec clir foo
+cmp stdout foo-output
+! stderr .
+
+#
+# -help flag to known subcommand (foo): print specific help
+#
+exec clir foo -help
+cmp stdout foo-help
+! stderr .
+
+# Introduced by PR #22
+# -h flag to known subcommand (foo): print specific help
+exec clir foo -h
+cmp stdout foo-help
+! stderr .
+
+
+-- top-level-help --
+clir - a clir executable for testscript
+
+Available commands:
+
+   foo   Foo the bar 
+
+Flags:
+
+  -help
+    	Get help on the 'clir' command.
+
+-- foo-output --
+this is Foo. Flags: &{0}
+-- foo-help --
+clir - a clir executable for testscript
+
+clir foo - Foo the bar
+Flags:
+
+  -bar int
+    	How many bars
+  -help
+    	Get help on the 'clir foo' command.
+
