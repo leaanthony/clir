@@ -128,7 +128,7 @@ func (c *Command) run(args []string) error {
 			if c.app.errorHandler != nil {
 				return c.app.errorHandler(c.commandPath, err)
 			}
-			return fmt.Errorf("Error: %s\nSee '%s --help' for usage", err, c.commandPath)
+			return fmt.Errorf("Error: %w\nSee '%s --help' for usage", err, c.commandPath)
 		}
 
 		// Help takes precedence
