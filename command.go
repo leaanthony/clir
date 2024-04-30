@@ -356,6 +356,8 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 				field.SetFloat(value)
 			}
 			c.Float64Flag(name, description, field.Addr().Interface().(*float64))
+		case reflect.Slice:
+			c.addSliceFlags(name, description, field, defaultValue)
 		default:
 			if pos != "" {
 				println("WARNING: Unsupported type for flag: ", fieldType.Type.Kind())
@@ -366,9 +368,124 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 	return c
 }
 
+func (c *Command) addSliceFlags(name, description string, field reflect.Value, defaultValue string) *Command {
+	if field.Kind() != reflect.Slice {
+		panic("AddFlags() requires a pointer to a slice")
+	}
+	t := reflect.TypeOf(field.Addr().Interface())
+	if t.Kind() != reflect.Ptr {
+		panic("AddFlags() requires a pointer to a slice")
+	}
+	if t.Elem().Kind() != reflect.Slice {
+		panic("AddFlags() requires a pointer to a slice")
+	}
+	switch t.Elem().Elem().Kind() {
+	case reflect.Bool:
+		if defaultValue != "" {
+			defaultSplit := strings.Split(defaultValue, ",")
+			defaultValues := make([]bool, 0, len(defaultSplit))
+			for _, value := range defaultSplit {
+				val, err := strconv.ParseBool(value)
+				if err != nil {
+					panic("Invalid default value for bool flag")
+				}
+				defaultValues = append(defaultValues, val)
+			}
+			field.Set(reflect.ValueOf(defaultValues))
+		}
+		c.BoolsFlag(name, description, field.Addr().Interface().(*[]bool))
+	case reflect.String:
+		if defaultValue != "" {
+			defaultValues := strings.Split(defaultValue, ",")
+			field.Set(reflect.ValueOf(defaultValues))
+		}
+		c.StringsFlag(name, description, field.Addr().Interface().(*[]string))
+	case reflect.Int:
+		if defaultValue != "" {
+			defaultSplit := strings.Split(defaultValue, ",")
+			defaultValues := make([]int, 0, len(defaultSplit))
+			for _, value := range defaultSplit {
+				val, err := strconv.Atoi(value)
+				if err != nil {
+					panic("Invalid default value for int flag")
+				}
+				defaultValues = append(defaultValues, val)
+			}
+			field.Set(reflect.ValueOf(defaultValues))
+		}
+		c.IntsFlag(name, description, field.Addr().Interface().(*[]int))
+	case reflect.Int64:
+		if defaultValue != "" {
+			defaultSplit := strings.Split(defaultValue, ",")
+			defaultValues := make([]int64, 0, len(defaultSplit))
+			for _, value := range defaultSplit {
+				val, err := strconv.ParseInt(value, 10, 64)
+				if err != nil {
+					panic("Invalid default value for int64 flag")
+				}
+				defaultValues = append(defaultValues, val)
+			}
+			field.Set(reflect.ValueOf(defaultValues))
+		}
+		c.Int64sFlag(name, description, field.Addr().Interface().(*[]int64))
+	case reflect.Uint:
+		if defaultValue != "" {
+			defaultSplit := strings.Split(defaultValue, ",")
+			defaultValues := make([]uint, 0, len(defaultSplit))
+			for _, value := range defaultSplit {
+				val, err := strconv.Atoi(value)
+				if err != nil {
+					panic("Invalid default value for uint flag")
+				}
+				defaultValues = append(defaultValues, uint(val))
+			}
+			field.Set(reflect.ValueOf(defaultValues))
+		}
+		c.UintsFlag(name, description, field.Addr().Interface().(*[]uint))
+	case reflect.Uint64:
+		if defaultValue != "" {
+			defaultSplit := strings.Split(defaultValue, ",")
+			defaultValues := make([]uint64, 0, len(defaultSplit))
+			for _, value := range defaultSplit {
+				val, err := strconv.Atoi(value)
+				if err != nil {
+					panic("Invalid default value for uint64 flag")
+				}
+				defaultValues = append(defaultValues, uint64(val))
+			}
+			field.Set(reflect.ValueOf(defaultValues))
+		}
+		c.Uint64sFlag(name, description, field.Addr().Interface().(*[]uint64))
+	case reflect.Float64:
+		if defaultValue != "" {
+			defaultSplit := strings.Split(defaultValue, ",")
+			defaultValues := make([]float64, 0, len(defaultSplit))
+			for _, value := range defaultSplit {
+				val, err := strconv.Atoi(value)
+				if err != nil {
+					panic("Invalid default value for float64 flag")
+				}
+				defaultValues = append(defaultValues, float64(val))
+			}
+			field.Set(reflect.ValueOf(defaultValues))
+		}
+		c.Float64sFlag(name, description, field.Addr().Interface().(*[]float64))
+	default:
+		panic("AddFlags() not supported slice type")
+	}
+	return c
+}
+
 // BoolFlag - Adds a boolean flag to the command
 func (c *Command) BoolFlag(name, description string, variable *bool) *Command {
 	c.flags.BoolVar(variable, name, *variable, description)
+	c.flagCount++
+	return c
+}
+
+// BoolsFlag - Adds a booleans flag to the command
+func (c *Command) BoolsFlag(name, description string, variable *[]bool) *Command {
+	c.flags.Var(newBoolsValue(*variable, variable), name, description)
 	c.flagCount++
 	return c
 }
@@ -380,6 +497,13 @@ func (c *Command) StringFlag(name, description string, variable *string) *Comman
 	return c
 }
 
+// StringsFlag - Adds a strings flag to the command
+func (c *Command) StringsFlag(name, description string, variable *[]string) *Command {
+	c.flags.Var(newStringsValue(*variable, variable), name, description)
+	c.flagCount++
+	return c
+}
+
 // IntFlag - Adds an int flag to the command
 func (c *Command) IntFlag(name, description string, variable *int) *Command {
 	c.flags.IntVar(variable, name, *variable, description)
@@ -387,23 +511,51 @@ func (c *Command) IntFlag(name, description string, variable *int) *Command {
 	return c
 }
 
-// Int64Flag - Adds an int flag to the command
+// IntsFlag - Adds an ints flag to the command
+func (c *Command) IntsFlag(name, description string, variable *[]int) *Command {
+	c.flags.Var(newIntsValue(*variable, variable), name, description)
+	c.flagCount++
+	return c
+}
+
+// Int64Flag - Adds an int64 flag to the command
 func (c *Command) Int64Flag(name, description string, variable *int64) *Command {
 	c.flags.Int64Var(variable, name, *variable, description)
 	c.flagCount++
 	return c
 }
 
-// UintFlag - Adds an int flag to the command
+// Int64sFlag - Adds an int64s flag to the command
+func (c *Command) Int64sFlag(name, description string, variable *[]int64) *Command {
+	c.flags.Var(newInt64sValue(*variable, variable), name, description)
+	c.flagCount++
+	return c
+}
+
+// UintFlag - Adds an uint flag to the command
 func (c *Command) UintFlag(name, description string, variable *uint) *Command {
 	c.flags.UintVar(variable, name, *variable, description)
 	c.flagCount++
 	return c
 }
 
-// UInt64Flag - Adds an int flag to the command
+// UintsFlag - Adds an uints flag to the command
+func (c *Command) UintsFlag(name, description string, variable *[]uint) *Command {
+	c.flags.Var(newUintsValue(*variable, variable), name, description)
+	c.flagCount++
+	return c
+}
+
+// UInt64Flag - Adds an uint flag to the command
 func (c *Command) UInt64Flag(name, description string, variable *uint64) *Command {
 	c.flags.Uint64Var(variable, name, *variable, description)
+	c.flagCount++
+	return c
+}
+
+// Uint64sFlag - Adds an uint64s flag to the command
+func (c *Command) Uint64sFlag(name, description string, variable *[]uint64) *Command {
+	c.flags.Var(newUint64sValue(*variable, variable), name, description)
 	c.flagCount++
 	return c
 }
@@ -413,6 +565,157 @@ func (c *Command) Float64Flag(name, description string, variable *float64) *Comm
 	c.flags.Float64Var(variable, name, *variable, description)
 	c.flagCount++
 	return c
+}
+
+// Float64sFlag - Adds a float64s flag to the command
+func (c *Command) Float64sFlag(name, description string, variable *[]float64) *Command {
+	c.flags.Var(newFloat64sValue(*variable, variable), name, description)
+	c.flagCount++
+	return c
+}
+
+type boolsFlagVar []bool
+
+func (f *boolsFlagVar) String() string {
+	return fmt.Sprint([]bool(*f))
+}
+
+func (f *boolsFlagVar) Set(value string) error {
+	if value == "" {
+		*f = append(*f, false)
+		return nil
+	}
+	b, err := strconv.ParseBool(value)
+	if err != nil {
+		return err
+	}
+	*f = append(*f, b)
+	return nil
+}
+
+func (f *boolsFlagVar) IsBoolFlag() bool {
+	return true
+}
+
+func newBoolsValue(val []bool, p *[]bool) *boolsFlagVar {
+	*p = val
+	return (*boolsFlagVar)(p)
+}
+
+type stringsFlagVar []string
+
+func (f *stringsFlagVar) String() string {
+	return fmt.Sprint([]string(*f))
+}
+
+func (f *stringsFlagVar) Set(value string) error {
+	*f = append(*f, value)
+	return nil
+}
+
+func newStringsValue(val []string, p *[]string) *stringsFlagVar {
+	*p = val
+	return (*stringsFlagVar)(p)
+}
+
+type intsFlagVar []int
+
+func (f *intsFlagVar) String() string {
+	return fmt.Sprint([]int(*f))
+}
+
+func (f *intsFlagVar) Set(value string) error {
+	i, err := strconv.Atoi(value)
+	if err != nil {
+		return err
+	}
+	*f = append(*f, i)
+	return nil
+}
+
+func newIntsValue(val []int, p *[]int) *intsFlagVar {
+	*p = val
+	return (*intsFlagVar)(p)
+}
+
+type int64sFlagVar []int64
+
+func (f *int64sFlagVar) String() string {
+	return fmt.Sprint([]int64(*f))
+}
+
+func (f *int64sFlagVar) Set(value string) error {
+	i, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		return err
+	}
+	*f = append(*f, i)
+	return nil
+}
+
+func newInt64sValue(val []int64, p *[]int64) *int64sFlagVar {
+	*p = val
+	return (*int64sFlagVar)(p)
+}
+
+type uintsFlagVar []uint
+
+func (f *uintsFlagVar) String() string {
+	return fmt.Sprint([]uint(*f))
+}
+
+func (f *uintsFlagVar) Set(value string) error {
+	i, err := strconv.Atoi(value)
+	if err != nil {
+		return err
+	}
+	*f = append(*f, uint(i))
+	return nil
+}
+
+func newUintsValue(val []uint, p *[]uint) *uintsFlagVar {
+	*p = val
+	return (*uintsFlagVar)(p)
+}
+
+type uint64sFlagVar []uint64
+
+func (f *uint64sFlagVar) String() string {
+	return fmt.Sprint([]uint64(*f))
+}
+
+func (f *uint64sFlagVar) Set(value string) error {
+	i, err := strconv.ParseUint(value, 10, 64)
+	if err != nil {
+		return err
+	}
+	*f = append(*f, i)
+	return nil
+}
+
+func newUint64sValue(val []uint64, p *[]uint64) *uint64sFlagVar {
+	*p = val
+	return (*uint64sFlagVar)(p)
+}
+
+type float64sFlagVar []float64
+
+func (f *float64sFlagVar) String() string {
+	return fmt.Sprint([]float64(*f))
+}
+
+func (f *float64sFlagVar) Set(value string) error {
+	i, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return err
+	}
+	*f = append(*f, i)
+	return nil
+}
+
+func newFloat64sValue(val []float64, p *[]float64) *float64sFlagVar {
+	*p = val
+	return (*float64sFlagVar)(p)
 }
 
 // LongDescription - Sets the long description for the command
@@ -499,6 +802,8 @@ func (c *Command) parsePositionalArgs(args []string) error {
 				return err
 			}
 			field.SetFloat(value)
+		case reflect.Slice:
+
 		default:
 			return errors.New("Unsupported type for positional argument: " + fieldType.Name())
 		}
