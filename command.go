@@ -357,7 +357,8 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 			}
 			c.Float64Flag(name, description, field.Addr().Interface().(*float64))
 		case reflect.Slice:
-			c.addSliceFlags(name, description, field, defaultValue)
+			c.addSliceField(field, defaultValue)
+			c.addSliceFlags(name, description, field)
 		default:
 			if pos != "" {
 				println("WARNING: Unsupported type for flag: ", fieldType.Type.Kind())
@@ -368,110 +369,125 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 	return c
 }
 
-func (c *Command) addSliceFlags(name, description string, field reflect.Value, defaultValue string) *Command {
+func (c *Command) addSliceFlags(name, description string, field reflect.Value) *Command {
 	if field.Kind() != reflect.Slice {
-		panic("AddFlags() requires a pointer to a slice")
+		panic("addSliceFlags() requires a pointer to a slice")
 	}
 	t := reflect.TypeOf(field.Addr().Interface())
 	if t.Kind() != reflect.Ptr {
-		panic("AddFlags() requires a pointer to a slice")
+		panic("addSliceFlags() requires a pointer to a slice")
 	}
 	if t.Elem().Kind() != reflect.Slice {
-		panic("AddFlags() requires a pointer to a slice")
+		panic("addSliceFlags() requires a pointer to a slice")
 	}
 	switch t.Elem().Elem().Kind() {
 	case reflect.Bool:
-		if defaultValue != "" {
-			defaultSplit := strings.Split(defaultValue, ",")
-			defaultValues := make([]bool, 0, len(defaultSplit))
-			for _, value := range defaultSplit {
-				val, err := strconv.ParseBool(value)
-				if err != nil {
-					panic("Invalid default value for bool flag")
-				}
-				defaultValues = append(defaultValues, val)
-			}
-			field.Set(reflect.ValueOf(defaultValues))
-		}
 		c.BoolsFlag(name, description, field.Addr().Interface().(*[]bool))
 	case reflect.String:
-		if defaultValue != "" {
-			defaultValues := strings.Split(defaultValue, ",")
-			field.Set(reflect.ValueOf(defaultValues))
-		}
 		c.StringsFlag(name, description, field.Addr().Interface().(*[]string))
 	case reflect.Int:
-		if defaultValue != "" {
-			defaultSplit := strings.Split(defaultValue, ",")
-			defaultValues := make([]int, 0, len(defaultSplit))
-			for _, value := range defaultSplit {
-				val, err := strconv.Atoi(value)
-				if err != nil {
-					panic("Invalid default value for int flag")
-				}
-				defaultValues = append(defaultValues, val)
-			}
-			field.Set(reflect.ValueOf(defaultValues))
-		}
 		c.IntsFlag(name, description, field.Addr().Interface().(*[]int))
 	case reflect.Int64:
-		if defaultValue != "" {
-			defaultSplit := strings.Split(defaultValue, ",")
-			defaultValues := make([]int64, 0, len(defaultSplit))
-			for _, value := range defaultSplit {
-				val, err := strconv.ParseInt(value, 10, 64)
-				if err != nil {
-					panic("Invalid default value for int64 flag")
-				}
-				defaultValues = append(defaultValues, val)
-			}
-			field.Set(reflect.ValueOf(defaultValues))
-		}
 		c.Int64sFlag(name, description, field.Addr().Interface().(*[]int64))
 	case reflect.Uint:
-		if defaultValue != "" {
-			defaultSplit := strings.Split(defaultValue, ",")
-			defaultValues := make([]uint, 0, len(defaultSplit))
-			for _, value := range defaultSplit {
-				val, err := strconv.Atoi(value)
-				if err != nil {
-					panic("Invalid default value for uint flag")
-				}
-				defaultValues = append(defaultValues, uint(val))
-			}
-			field.Set(reflect.ValueOf(defaultValues))
-		}
 		c.UintsFlag(name, description, field.Addr().Interface().(*[]uint))
 	case reflect.Uint64:
-		if defaultValue != "" {
-			defaultSplit := strings.Split(defaultValue, ",")
-			defaultValues := make([]uint64, 0, len(defaultSplit))
-			for _, value := range defaultSplit {
-				val, err := strconv.Atoi(value)
-				if err != nil {
-					panic("Invalid default value for uint64 flag")
-				}
-				defaultValues = append(defaultValues, uint64(val))
-			}
-			field.Set(reflect.ValueOf(defaultValues))
-		}
 		c.Uint64sFlag(name, description, field.Addr().Interface().(*[]uint64))
 	case reflect.Float64:
-		if defaultValue != "" {
-			defaultSplit := strings.Split(defaultValue, ",")
-			defaultValues := make([]float64, 0, len(defaultSplit))
-			for _, value := range defaultSplit {
-				val, err := strconv.Atoi(value)
-				if err != nil {
-					panic("Invalid default value for float64 flag")
-				}
-				defaultValues = append(defaultValues, float64(val))
-			}
-			field.Set(reflect.ValueOf(defaultValues))
-		}
 		c.Float64sFlag(name, description, field.Addr().Interface().(*[]float64))
 	default:
-		panic("AddFlags() not supported slice type")
+		panic("addSliceFlags() not supported slice type")
+	}
+	return c
+}
+
+func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Command {
+	if defaultValue == "" {
+		return c
+	}
+	if field.Kind() != reflect.Slice {
+		panic("addSliceField() requires a pointer to a slice")
+	}
+	t := reflect.TypeOf(field.Addr().Interface())
+	if t.Kind() != reflect.Ptr {
+		panic("addSliceField() requires a pointer to a slice")
+	}
+	if t.Elem().Kind() != reflect.Slice {
+		panic("addSliceField() requires a pointer to a slice")
+	}
+	switch t.Elem().Elem().Kind() {
+	case reflect.Bool:
+		defaultSplit := strings.Split(defaultValue, ",")
+		defaultValues := make([]bool, 0, len(defaultSplit))
+		for _, value := range defaultSplit {
+			val, err := strconv.ParseBool(value)
+			if err != nil {
+				panic("Invalid default value for bool flag")
+			}
+			defaultValues = append(defaultValues, val)
+		}
+		field.Set(reflect.ValueOf(defaultValues))
+	case reflect.String:
+		defaultValues := strings.Split(defaultValue, ",")
+		field.Set(reflect.ValueOf(defaultValues))
+	case reflect.Int:
+		defaultSplit := strings.Split(defaultValue, ",")
+		defaultValues := make([]int, 0, len(defaultSplit))
+
+		for _, value := range defaultSplit {
+			val, err := strconv.Atoi(value)
+			if err != nil {
+				panic("Invalid default value for int flag")
+			}
+			defaultValues = append(defaultValues, val)
+		}
+		field.Set(reflect.ValueOf(defaultValues))
+	case reflect.Int64:
+		defaultSplit := strings.Split(defaultValue, ",")
+		defaultValues := make([]int64, 0, len(defaultSplit))
+		for _, value := range defaultSplit {
+			val, err := strconv.ParseInt(value, 10, 64)
+			if err != nil {
+				panic("Invalid default value for int64 flag")
+			}
+			defaultValues = append(defaultValues, val)
+		}
+		field.Set(reflect.ValueOf(defaultValues))
+	case reflect.Uint:
+		defaultSplit := strings.Split(defaultValue, ",")
+		defaultValues := make([]uint, 0, len(defaultSplit))
+		for _, value := range defaultSplit {
+			val, err := strconv.Atoi(value)
+			if err != nil {
+				panic("Invalid default value for uint flag")
+			}
+			defaultValues = append(defaultValues, uint(val))
+		}
+		field.Set(reflect.ValueOf(defaultValues))
+	case reflect.Uint64:
+		defaultSplit := strings.Split(defaultValue, ",")
+		defaultValues := make([]uint64, 0, len(defaultSplit))
+		for _, value := range defaultSplit {
+			val, err := strconv.Atoi(value)
+			if err != nil {
+				panic("Invalid default value for uint64 flag")
+			}
+			defaultValues = append(defaultValues, uint64(val))
+		}
+		field.Set(reflect.ValueOf(defaultValues))
+	case reflect.Float64:
+		defaultSplit := strings.Split(defaultValue, ",")
+		defaultValues := make([]float64, 0, len(defaultSplit))
+		for _, value := range defaultSplit {
+			val, err := strconv.Atoi(value)
+			if err != nil {
+				panic("Invalid default value for float64 flag")
+			}
+			defaultValues = append(defaultValues, float64(val))
+		}
+		field.Set(reflect.ValueOf(defaultValues))
+	default:
+		panic("addSliceField() not supported slice type")
 	}
 	return c
 }
@@ -803,7 +819,7 @@ func (c *Command) parsePositionalArgs(args []string) error {
 			}
 			field.SetFloat(value)
 		case reflect.Slice:
-
+			c.addSliceField(field, posArg)
 		default:
 			return errors.New("Unsupported type for positional argument: " + fieldType.Name())
 		}
