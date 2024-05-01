@@ -480,7 +480,7 @@ func (c *Command) addSliceFlags(name, description string, field reflect.Value) *
 	case reflect.Float64:
 		c.Float64sFlag(name, description, field.Addr().Interface().(*[]float64))
 	default:
-		panic(fmt.Sprintf("addSliceFlags() not supported slice type %s", name))
+		panic(fmt.Sprintf("addSliceFlags() not supported slice type %s", t.Elem().Elem().Kind().String()))
 	}
 	return c
 }
@@ -647,8 +647,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	default:
-		println(defaultValue)
-		panic("addSliceField() not supported slice type")
+		panic(fmt.Sprintf("addSliceField() not supported slice type %s", t.Elem().Elem().Kind().String()))
 	}
 	return c
 }
