@@ -3,36 +3,37 @@ package main
 import (
 	"fmt"
 	"github.com/leaanthony/clir"
+	"reflect"
 )
 
 type Flags struct {
-	String         string   `name:"string" description:"The string"`
-	Strings        []string `name:"strings" description:"The strings"`
-	StringsDefault []string `name:"strings_default" description:"The strings default" default:"one,two,three"`
+	String         string   `name:"string" description:"The string" pos:"1"`
+	Strings        []string `name:"strings" description:"The strings" pos:"2"`
+	StringsDefault []string `name:"strings_default" description:"The strings default" default:"one,two,three" pos:"3"`
 
-	Int         int   `name:"int" description:"The int"`
-	Ints        []int `name:"ints" description:"The ints"`
-	IntsDefault []int `name:"ints_default" description:"The ints default" default:"3,4,5"`
+	Int         int   `name:"int" description:"The int" pos:"4"`
+	Ints        []int `name:"ints" description:"The ints" pos:"5"`
+	IntsDefault []int `name:"ints_default" description:"The ints default" default:"3,4,5" pos:"6"`
 
-	Int64         int64   `name:"int64" description:"The int64"`
-	Int64s        []int64 `name:"int64s" description:"The int64s"`
-	Int64sDefault []int64 `name:"int64s_default" description:"The int64s default" default:"3,4,5"`
+	Int64         int64   `name:"int64" description:"The int64" pos:"7"`
+	Int64s        []int64 `name:"int64s" description:"The int64s" pos:"8"`
+	Int64sDefault []int64 `name:"int64s_default" description:"The int64s default" default:"3,4,5" pos:"9"`
 
-	Uint         uint   `name:"uint" description:"The uint"`
-	Uints        []uint `name:"uints" description:"The uints"`
-	UintsDefault []uint `name:"uints_default" description:"The uints default" default:"3,4,5"`
+	Uint         uint   `name:"uint" description:"The uint" pos:"10"`
+	Uints        []uint `name:"uints" description:"The uints" pos:"11"`
+	UintsDefault []uint `name:"uints_default" description:"The uints default" default:"3,4,5" pos:"12"`
 
-	Uint64         uint64   `name:"uint64" description:"The uint64"`
-	Uint64s        []uint64 `name:"uint64s" description:"The uint64s"`
-	Uint64sDefault []uint64 `name:"uint64s_default" description:"The uint64s default" default:"3,4,5"`
+	Uint64         uint64   `name:"uint64" description:"The uint64" pos:"13"`
+	Uint64s        []uint64 `name:"uint64s" description:"The uint64s" pos:"14"`
+	Uint64sDefault []uint64 `name:"uint64s_default" description:"The uint64s default" default:"3,4,5" pos:"15"`
 
-	Float64         float64   `name:"float64" description:"The float64"`
-	Float64s        []float64 `name:"float64s" description:"The float64s"`
-	Float64sDefault []float64 `name:"float64s_default" description:"The float64s default" default:"3,4,5"`
+	Float64         float64   `name:"float64" description:"The float64" pos:"17"`
+	Float64s        []float64 `name:"float64s" description:"The float64s" pos:"18"`
+	Float64sDefault []float64 `name:"float64s_default" description:"The float64s default" default:"3,4,5" pos:"19"`
 
-	Bool         bool   `name:"bool" description:"The bool"`
-	Bools        []bool `name:"bools" description:"The bools"`
-	BoolsDefault []bool `name:"bools_default" description:"The bools default" default:"false,true,false,true"`
+	Bool         bool   `name:"bool" description:"The bool" pos:"20"`
+	Bools        []bool `name:"bools" description:"The bools" pos:"21"`
+	BoolsDefault []bool `name:"bools_default" description:"The bools default" default:"false,true,false,true" pos:"22"`
 }
 
 func main() {
@@ -42,8 +43,6 @@ func main() {
 
 	// Create an init subcommand with flag inheritance
 	init := cli.NewSubCommand("flag", "print default")
-
-	cli.DefaultCommand(init)
 
 	flags := &Flags{
 		String:   "zkep",
@@ -62,6 +61,7 @@ func main() {
 		Bools:    []bool{true, false, false},
 	}
 	init.AddFlags(flags)
+
 	init.Action(func() error {
 
 		println("string:", fmt.Sprintf("%#v", flags.String))
@@ -97,11 +97,40 @@ func main() {
 		println("bool:", fmt.Sprintf("%#v", flags.Bool))
 		println("bools:", fmt.Sprintf("%#v", flags.Bools))
 		println("bools_default:", fmt.Sprintf("%#v", flags.BoolsDefault))
+		println("\n")
+
 		return nil
 	})
 
 	// Run!
-	if err := cli.Run(); err != nil {
+	if err := cli.Run("flag"); err != nil {
+		panic(err)
+	}
+
+	cli.NewSubCommandFunction("positional", "test positional args", func(f *Flags) error {
+
+		if f.String != "hello" {
+			panic(fmt.Sprintf("expected 'hello', got '%v'", f.String))
+		}
+
+		if !reflect.DeepEqual(f.Strings, []string{"zkep", "hello", "clir"}) {
+			panic(fmt.Sprintf("expected '[zkep hello clir]', got '%v'", f.Strings))
+		}
+
+		if !reflect.DeepEqual(f.StringsDefault, []string{"zkep", "clir", "hello"}) {
+			panic(fmt.Sprintf("expected '[zkep clir hello]', got '%v'", f.StringsDefault))
+		}
+
+		println("string:", fmt.Sprintf("%#v", f.String))
+		println("strings:", fmt.Sprintf("%#v", f.Strings))
+		println("strings_default:", fmt.Sprintf("%#v", f.StringsDefault))
+		println("\n")
+
+		return nil
+	})
+
+	// Run!
+	if err := cli.Run("positional", "hello", "zkep,hello,clir", "zkep,clir,hello"); err != nil {
 		panic(err)
 	}
 
