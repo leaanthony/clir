@@ -427,7 +427,7 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 			}
 			c.Float64Flag(name, description, field.Addr().Interface().(*float64))
 		case reflect.Slice:
-			c.addSliceField(field, defaultValue)
+			c.addSliceField(field, defaultValue, tag.Get("sep"))
 			c.addSliceFlags(name, description, field)
 		default:
 			if pos != "" {
@@ -485,9 +485,12 @@ func (c *Command) addSliceFlags(name, description string, field reflect.Value) *
 	return c
 }
 
-func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Command {
+func (c *Command) addSliceField(field reflect.Value, defaultValue, separator string) *Command {
 	if defaultValue == "" {
 		return c
+	}
+	if separator == "" {
+		separator = ","
 	}
 	if field.Kind() != reflect.Slice {
 		panic("addSliceField() requires a pointer to a slice")
@@ -501,7 +504,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 	}
 	switch t.Elem().Elem().Kind() {
 	case reflect.Bool:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]bool, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.ParseBool(value)
@@ -512,10 +515,10 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.String:
-		defaultValues := strings.Split(defaultValue, ",")
+		defaultValues := strings.Split(defaultValue, separator)
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Int:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]int, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.Atoi(value)
@@ -526,7 +529,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Int8:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]int8, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.Atoi(value)
@@ -537,7 +540,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Int16:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]int16, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.Atoi(value)
@@ -548,7 +551,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Int32:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]int32, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.ParseInt(value, 10, 64)
@@ -559,7 +562,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Int64:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]int64, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.ParseInt(value, 10, 64)
@@ -570,7 +573,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Uint:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]uint, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.Atoi(value)
@@ -581,7 +584,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Uint8:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]uint8, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.Atoi(value)
@@ -592,7 +595,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Uint16:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]uint16, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.Atoi(value)
@@ -603,7 +606,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Uint32:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]uint32, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.Atoi(value)
@@ -614,7 +617,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Uint64:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]uint64, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.Atoi(value)
@@ -625,7 +628,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Float32:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]float32, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.Atoi(value)
@@ -636,7 +639,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue string) *Comma
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Float64:
-		defaultSplit := strings.Split(defaultValue, ",")
+		defaultSplit := strings.Split(defaultValue, separator)
 		defaultValues := make([]float64, 0, len(defaultSplit))
 		for _, value := range defaultSplit {
 			val, err := strconv.Atoi(value)
@@ -771,7 +774,7 @@ func (c *Command) Uint8Flag(name, description string, variable *uint8) *Command 
 	return c
 }
 
-// Uint8sFlag - Adds an uint8 flag to the command
+// Uint8sFlag - Adds an uint8 s flag to the command
 func (c *Command) Uint8sFlag(name, description string, variable *[]uint8) *Command {
 	c.flags.Var(newUint8sValue(*variable, variable), name, description)
 	c.flagCount++
@@ -806,7 +809,7 @@ func (c *Command) Uint32sFlag(name, description string, variable *[]uint32) *Com
 	return c
 }
 
-// UInt64Flag - Adds an uint flag to the command
+// UInt64Flag - Adds an uint64 flag to the command
 func (c *Command) UInt64Flag(name, description string, variable *uint64) *Command {
 	c.flags.Uint64Var(variable, name, *variable, description)
 	c.flagCount++
@@ -1329,7 +1332,7 @@ func (c *Command) parsePositionalArgs(args []string) error {
 			}
 			field.SetFloat(value)
 		case reflect.Slice:
-			c.addSliceField(field, posArg)
+			c.addSliceField(field, posArg, "")
 		default:
 			return errors.New("Unsupported type for positional argument: " + fieldType.Name())
 		}
