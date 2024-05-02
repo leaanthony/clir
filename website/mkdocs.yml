@@ -69,6 +69,7 @@ nav:
       - examples/flags-compact.md
       - examples/flags-function.md
       - examples/flags-positional.md
+      - examples/flags-slice.md
       - examples/flagstruct.md
       - examples/hidden.md
       - examples/nested-subcommands.md

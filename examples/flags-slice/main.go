@@ -13,7 +13,7 @@ type Flags struct {
 
 	Int         int   `name:"int" description:"The int" pos:"4"`
 	Ints        []int `name:"ints" description:"The ints" pos:"5"`
-	IntsDefault []int `name:"ints_default" description:"The ints default" default:"3,4,5" pos:"6"`
+	IntsDefault []int `name:"ints_default" description:"The ints default" default:"3|4|5" sep:"|" pos:"6"`
 
 	Int8         int8   `name:"int8" description:"The int8"  pos:"7"`
 	Int8s        []int8 `name:"int8s" description:"The int8s" pos:"8"`
