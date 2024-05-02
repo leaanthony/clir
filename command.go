@@ -351,7 +351,7 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 				// set value of field to default value
 				value, err := strconv.Atoi(defaultValue)
 				if err != nil {
-					panic("Invalid default value for int flag")
+					panic("Invalid default value for int64 flag")
 				}
 				field.SetInt(int64(value))
 			}
@@ -361,7 +361,7 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 				// set value of field to default value
 				value, err := strconv.Atoi(defaultValue)
 				if err != nil {
-					panic("Invalid default value for int flag")
+					panic("Invalid default value for uint flag")
 				}
 				field.SetUint(uint64(value))
 			}
@@ -371,7 +371,7 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 				// set value of field to default value
 				value, err := strconv.Atoi(defaultValue)
 				if err != nil {
-					panic("Invalid default value for int flag")
+					panic("Invalid default value for uint8 flag")
 				}
 				field.SetUint(uint64(value))
 			}
@@ -381,7 +381,7 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 				// set value of field to default value
 				value, err := strconv.Atoi(defaultValue)
 				if err != nil {
-					panic("Invalid default value for int flag")
+					panic("Invalid default value for uint16 flag")
 				}
 				field.SetUint(uint64(value))
 			}
@@ -391,7 +391,7 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 				// set value of field to default value
 				value, err := strconv.Atoi(defaultValue)
 				if err != nil {
-					panic("Invalid default value for int flag")
+					panic("Invalid default value for uint32 flag")
 				}
 				field.SetUint(uint64(value))
 			}
@@ -401,7 +401,7 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 				// set value of field to default value
 				value, err := strconv.Atoi(defaultValue)
 				if err != nil {
-					panic("Invalid default value for int flag")
+					panic("Invalid default value for uint64 flag")
 				}
 				field.SetUint(uint64(value))
 			}
@@ -411,7 +411,7 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 				// set value of field to default value
 				value, err := strconv.ParseFloat(defaultValue, 64)
 				if err != nil {
-					panic("Invalid default value for float flag")
+					panic("Invalid default value for float32 flag")
 				}
 				field.SetFloat(value)
 			}
@@ -421,7 +421,7 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 				// set value of field to default value
 				value, err := strconv.ParseFloat(defaultValue, 64)
 				if err != nil {
-					panic("Invalid default value for float flag")
+					panic("Invalid default value for float64 flag")
 				}
 				field.SetFloat(value)
 			}
