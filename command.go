@@ -26,6 +26,7 @@ type Command struct {
 	helpFlag          bool
 	hidden            bool
 	positionalArgsMap map[string]reflect.Value
+	sliceSeparator    map[string]string
 }
 
 // NewCommand creates a new Command
@@ -37,6 +38,7 @@ func NewCommand(name string, description string) *Command {
 		subCommandsMap:    make(map[string]*Command),
 		hidden:            false,
 		positionalArgsMap: make(map[string]reflect.Value),
+		sliceSeparator:    make(map[string]string),
 	}
 
 	return result
@@ -284,7 +286,11 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 		description := tag.Get("description")
 		defaultValue := tag.Get("default")
 		pos := tag.Get("pos")
+		sep := tag.Get("sep")
 		c.positionalArgsMap[pos] = field
+		if sep != "" {
+			c.sliceSeparator[pos] = sep
+		}
 		if name == "" {
 			name = strings.ToLower(t.Elem().Field(i).Name)
 		}
@@ -427,7 +433,7 @@ func (c *Command) AddFlags(optionStruct interface{}) *Command {
 			}
 			c.Float64Flag(name, description, field.Addr().Interface().(*float64))
 		case reflect.Slice:
-			c.addSliceField(field, defaultValue, tag.Get("sep"))
+			c.addSliceField(field, defaultValue, sep)
 			c.addSliceFlags(name, description, field)
 		default:
 			if pos != "" {
@@ -489,9 +495,6 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 	if defaultValue == "" {
 		return c
 	}
-	if separator == "" {
-		separator = ","
-	}
 	if field.Kind() != reflect.Slice {
 		panic("addSliceField() requires a pointer to a slice")
 	}
@@ -502,11 +505,14 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 	if t.Elem().Kind() != reflect.Slice {
 		panic("addSliceField() requires a pointer to a slice")
 	}
+	defaultSlice := []string{defaultValue}
+	if separator != "" {
+		defaultSlice = strings.Split(defaultValue, separator)
+	}
 	switch t.Elem().Elem().Kind() {
 	case reflect.Bool:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]bool, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
+		defaultValues := make([]bool, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
 			val, err := strconv.ParseBool(value)
 			if err != nil {
 				panic("Invalid default value for bool flag")
@@ -515,12 +521,10 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.String:
-		defaultValues := strings.Split(defaultValue, separator)
-		field.Set(reflect.ValueOf(defaultValues))
+		field.Set(reflect.ValueOf(defaultSlice))
 	case reflect.Int:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]int, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
+		defaultValues := make([]int, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
 			val, err := strconv.Atoi(value)
 			if err != nil {
 				panic("Invalid default value for int flag")
@@ -529,9 +533,8 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Int8:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]int8, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
+		defaultValues := make([]int8, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
 			val, err := strconv.Atoi(value)
 			if err != nil {
 				panic("Invalid default value for int8 flag")
@@ -540,9 +543,8 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Int16:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]int16, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
+		defaultValues := make([]int16, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
 			val, err := strconv.Atoi(value)
 			if err != nil {
 				panic("Invalid default value for int16 flag")
@@ -551,10 +553,9 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Int32:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]int32, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
-			val, err := strconv.ParseInt(value, 10, 64)
+		defaultValues := make([]int32, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
+			val, err := strconv.ParseInt(value, 10, 32)
 			if err != nil {
 				panic("Invalid default value for int32 flag")
 			}
@@ -562,9 +563,8 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Int64:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]int64, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
+		defaultValues := make([]int64, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
 			val, err := strconv.ParseInt(value, 10, 64)
 			if err != nil {
 				panic("Invalid default value for int64 flag")
@@ -573,9 +573,8 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Uint:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]uint, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
+		defaultValues := make([]uint, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
 			val, err := strconv.Atoi(value)
 			if err != nil {
 				panic("Invalid default value for uint flag")
@@ -584,9 +583,8 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Uint8:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]uint8, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
+		defaultValues := make([]uint8, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
 			val, err := strconv.Atoi(value)
 			if err != nil {
 				panic("Invalid default value for uint8 flag")
@@ -595,9 +593,8 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Uint16:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]uint16, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
+		defaultValues := make([]uint16, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
 			val, err := strconv.Atoi(value)
 			if err != nil {
 				panic("Invalid default value for uint16 flag")
@@ -606,9 +603,8 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Uint32:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]uint32, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
+		defaultValues := make([]uint32, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
 			val, err := strconv.Atoi(value)
 			if err != nil {
 				panic("Invalid default value for uint32 flag")
@@ -617,9 +613,8 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Uint64:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]uint64, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
+		defaultValues := make([]uint64, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
 			val, err := strconv.Atoi(value)
 			if err != nil {
 				panic("Invalid default value for uint64 flag")
@@ -628,9 +623,8 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Float32:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]float32, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
+		defaultValues := make([]float32, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
 			val, err := strconv.Atoi(value)
 			if err != nil {
 				panic("Invalid default value for float32 flag")
@@ -639,9 +633,8 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		}
 		field.Set(reflect.ValueOf(defaultValues))
 	case reflect.Float64:
-		defaultSplit := strings.Split(defaultValue, separator)
-		defaultValues := make([]float64, 0, len(defaultSplit))
-		for _, value := range defaultSplit {
+		defaultValues := make([]float64, 0, len(defaultSlice))
+		for _, value := range defaultSlice {
 			val, err := strconv.Atoi(value)
 			if err != nil {
 				panic("Invalid default value for float64 flag")
@@ -1332,7 +1325,7 @@ func (c *Command) parsePositionalArgs(args []string) error {
 			}
 			field.SetFloat(value)
 		case reflect.Slice:
-			c.addSliceField(field, posArg, "")
+			c.addSliceField(field, posArg, c.sliceSeparator[key])
 		default:
 			return errors.New("Unsupported type for positional argument: " + fieldType.Name())
 		}
