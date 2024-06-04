@@ -115,6 +115,7 @@ func (c *Cli) PostRun(callback func(*Cli) error) {
 func (c *Cli) WithFlags(flags ...flagFunc) *Cli {
 	for _, f := range flags {
 		f(c.rootCommand)
+		c.rootCommand.flagCount++
 	}
 	return c
 }

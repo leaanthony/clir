@@ -649,6 +649,7 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 func (c *Command) WithFlags(flags ...flagFunc) *Command {
 	for _, f := range flags {
 		f(c)
+		c.flagCount++
 	}
 	return c
 }
