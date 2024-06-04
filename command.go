@@ -56,7 +56,6 @@ func (c *Command) setParentCommandPath(parentCommandPath string) {
 	c.BoolFlag("help", "Get help on the '"+strings.ToLower(c.commandPath)+"' command.", &c.helpFlag)
 
 	// result.Flags.Usage = result.PrintHelp
-
 }
 
 func (c *Command) inheritFlags(inheritFlags *flag.FlagSet) {
@@ -115,7 +114,6 @@ func (c *Command) parseFlags(args []string) error {
 
 // Run - Runs the Command with the given arguments
 func (c *Command) run(args []string) error {
-
 	// If we have arguments, process them
 	if len(args) > 0 {
 		// Check for subcommand
@@ -644,6 +642,13 @@ func (c *Command) addSliceField(field reflect.Value, defaultValue, separator str
 		field.Set(reflect.ValueOf(defaultValues))
 	default:
 		panic(fmt.Sprintf("addSliceField() not supported slice type %s", t.Elem().Elem().Kind().String()))
+	}
+	return c
+}
+
+func (c *Command) WithFlags(flags ...flagFunc) *Command {
+	for _, f := range flags {
+		f(c)
 	}
 	return c
 }

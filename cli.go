@@ -112,6 +112,13 @@ func (c *Cli) PostRun(callback func(*Cli) error) {
 	c.postRunCommand = callback
 }
 
+func (c *Cli) WithFlags(flags ...flagFunc) *Cli {
+	for _, f := range flags {
+		f(c.rootCommand)
+	}
+	return c
+}
+
 // BoolFlag - Adds a boolean flag to the root command.
 func (c *Cli) BoolFlag(name, description string, variable *bool) *Cli {
 	c.rootCommand.BoolFlag(name, description, variable)
