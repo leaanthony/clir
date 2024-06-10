@@ -39,7 +39,7 @@ func (c *Cli) SetBannerFunction(fn func(*Cli) string) {
 
 // SetErrorFunction - Set custom error message when undefined
 // flags are used by the user. First argument is a string containing
-// the commnad path used. Second argument is the undefined flag error.
+// the command path used. Second argument is the undefined flag error.
 func (c *Cli) SetErrorFunction(fn func(string, error) error) {
 	c.errorHandler = fn
 }
