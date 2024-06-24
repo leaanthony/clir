@@ -126,17 +126,18 @@ func (c *Command) run(args []string) error {
 
 		// Parse flags
 		err := c.parseFlags(args)
+
+		// Help takes precedence
+		if errors.Is(err, flag.ErrHelp) || c.helpFlag {
+			c.PrintHelp()
+			return nil
+		}
+
 		if err != nil {
 			if c.app.errorHandler != nil {
 				return c.app.errorHandler(c.commandPath, err)
 			}
-			return fmt.Errorf("Error: %s\nSee '%s --help' for usage", err, c.commandPath)
-		}
-
-		// Help takes precedence
-		if c.helpFlag {
-			c.PrintHelp()
-			return nil
+			return fmt.Errorf("Error: %w\nSee '%s --help' for usage", err, c.commandPath)
 		}
 	}
 
